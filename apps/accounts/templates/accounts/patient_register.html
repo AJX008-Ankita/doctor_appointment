@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Patient Register{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/patient_register.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="patient-card">
+    <h3 class="text-center mb-3">Patient Registration</h3>
+
+    <form id="patientForm">
+        {% csrf_token %}
+
+        <input class="form-control mb-2" name="full_name" placeholder="Full Name">
+        <div class="error" id="full_name_error"></div>
+
+        <input class="form-control mb-2" name="email" placeholder="Email">
+        <div class="error" id="email_error"></div>
+
+        <input class="form-control mb-2" name="phone" placeholder="Phone">
+        <div class="error" id="phone_error"></div>
+
+        <input type="password" class="form-control mb-2" name="password" placeholder="Password">
+        <div class="error" id="password_error"></div>
+
+        <select class="form-control mb-2" name="gender">
+            <option value="">Select Gender</option>
+            <option>Male</option>
+            <option>Female</option>
+            <option>Other</option>
+        </select>
+        <div class="error" id="gender_error"></div>
+
+        <input type="date" class="form-control mb-2" name="date_of_birth">
+        <div class="error" id="date_of_birth_error"></div>
+
+        <input class="form-control mb-2" name="city" placeholder="City">
+        <div class="error" id="city_error"></div>
+
+        <button class="btn btn-primary w-100 mt-3">Register</button>
+        <div class="success" id="successMsg"></div>
+    </form>
+</div>
+
+<script>
+document.getElementById("patientForm").addEventListener("submit", async function(e){
+    e.preventDefault();
+
+    document.querySelectorAll(".error").forEach(el => el.innerText = "");
+    document.getElementById("successMsg").innerText = "";
+
+    const formData = new FormData(this);
+    const csrf = document.querySelector("[name=csrfmiddlewaretoken]").value;
+
+    const res = await fetch("/api/patient/register/", {
+        method: "POST",
+        body: formData,
+        headers: { "X-CSRFToken": csrf }
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+        for (let key in data.errors) {
+            document.getElementById(key + "_error").innerText = data.errors[key];
+        }
+    } else {
+        document.getElementById("successMsg").innerText = data.success;
+        this.reset();
+    }
+});
+</script>
+{% endblock %}

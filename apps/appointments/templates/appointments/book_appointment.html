@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Book Appointment{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'appointments/appointments.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+
+    <h3 class="mb-4">Book Appointment</h3>
+
+    <!-- ================= DOCTOR DETAILS ================= -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="mb-3">{{ doctor.full_name }}</h5>
+
+            <p class="mb-1"><strong>Specialization:</strong> {{ doctor.specialization }}</p>
+            <p class="mb-1"><strong>Qualification:</strong> {{ doctor.qualification }}</p>
+            <p class="mb-1"><strong>Experience:</strong> {{ doctor.experience_years }} years</p>
+            <p class="mb-1"><strong>Clinic:</strong> {{ doctor.clinic_name }}</p>
+            <p class="mb-1"><strong>City:</strong> {{ doctor.city }}</p>
+            <p class="mb-0"><strong>Consultation Fee:</strong> ₹{{ doctor.consultation_fee }}</p>
+        </div>
+    </div>
+
+    <!-- ================= APPOINTMENT FORM ================= -->
+    <form id="appointmentForm">
+        {% csrf_token %}
+
+        <!-- SLOT SELECTION -->
+        <div class="mb-4">
+            <label class="form-label fw-semibold">Available Time Slot</label>
+            <select id="availability_id" class="form-select" required>
+                <option value="">-- Select Time Slot --</option>
+
+                {% for slot in availability_slots %}
+                    <option value="{{ slot.id }}">
+                        {{ slot.date }} | {{ slot.start_time }} - {{ slot.end_time }}
+                    </option>
+                {% empty %}
+                    <option disabled>No slots available</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- PATIENT COMING TIME -->
+        <div class="mb-4">
+            <label class="form-label fw-semibold">When will you come?</label>
+
+            <div class="row">
+                <div class="col-md-6 mb-2">
+                    <label class="form-label small">From</label>
+                    <input type="time" id="come_from" class="form-control" required>
+                </div>
+
+                <div class="col-md-6 mb-2">
+                    <label class="form-label small">To</label>
+                    <input type="time" id="come_to" class="form-control" required>
+                </div>
+            </div>
+        </div>
+
+        <!-- MESSAGE AREA -->
+        <div id="formMessage" class="mb-3"></div>
+
+        <button type="submit" class="btn btn-primary w-100">
+            Confirm Appointment
+        </button>
+    </form>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById("appointmentForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const availabilitySelect = document.getElementById("availability_id");
+    const fromTime = document.getElementById("come_from").value;
+    const toTime = document.getElementById("come_to").value;
+    const messageDiv = document.getElementById("formMessage");
+
+    messageDiv.innerHTML = "";
+
+    // ================= VALIDATION =================
+    if (!availabilitySelect.value) {
+        messageDiv.innerHTML = `
+            <div class="alert alert-danger">
+                Please select an available time slot.
+            </div>
+        `;
+        return;
+    }
+
+    if (!fromTime || !toTime) {
+        messageDiv.innerHTML = `
+            <div class="alert alert-danger">
+                Please select your coming time.
+            </div>
+        `;
+        return;
+    }
+
+    if (fromTime >= toTime) {
+        messageDiv.innerHTML = `
+            <div class="alert alert-danger">
+                "From" time must be earlier than "To" time.
+            </div>
+        `;
+        return;
+    }
+
+    // ================= API CALL =================
+    fetch("/appointments/api/appointments/create/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": "{{ csrf_token }}"
+        },
+        body: JSON.stringify({
+            availability_id: availabilitySelect.value,
+            patient_start_time: fromTime,
+            patient_end_time: toTime
+        })
+    })
+    .then(async response => {
+        const data = await response.json();
+
+        // 🔐 NOT LOGGED IN
+        if (response.status === 401 && data.login_url) {
+            messageDiv.innerHTML = `
+                <div class="alert alert-danger d-flex justify-content-between align-items-center">
+                    <span>${data.error}</span>
+        
+                </div>
+            `;
+            return;
+        }
+
+        // ✅ SUCCESS
+        if (data.success) {
+            messageDiv.innerHTML = `
+                <div class="alert alert-success">
+                    Appointment booked successfully!
+                </div>
+            `;
+
+            setTimeout(() => {
+                window.location.href = "/patient/dashboard/";
+            }, 1500);
+        }
+        // ❌ OTHER ERRORS
+        else {
+            messageDiv.innerHTML = `
+                <div class="alert alert-danger">
+                    ${data.error || "Something went wrong"}
+                </div>
+            `;
+        }
+    })
+    .catch(() => {
+        messageDiv.innerHTML = `
+            <div class="alert alert-danger">
+                Network error. Please try again.
+            </div>
+        `;
+    });
+});
+</script>
+{% endblock %}

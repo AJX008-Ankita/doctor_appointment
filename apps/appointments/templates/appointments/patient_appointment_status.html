@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}My Appointments{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <h2 class="mb-4">My Appointments</h2>
+
+    <!-- PAGE MESSAGE -->
+    <div id="pageMessage" class="mb-3"></div>
+
+    {% if appointments %}
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+            <thead class="table-dark text-center">
+                <tr>
+                    <th>Doctor</th>
+                    <th>Specialization</th>
+                    <th>Date</th>
+                    <th>Doctor Time</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                    <th>Report</th>
+                    <th>Patient Time</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for appt in appointments %}
+                <tr class="text-center">
+                    <td>{{ appt.doctor.full_name }}</td>
+                    <td>{{ appt.doctor.specialization }}</td>
+                    <td>{{ appt.appointment_date }}</td>
+                    <td>{{ appt.start_time }} – {{ appt.end_time }}</td>
+
+                    <!-- STATUS -->
+                    <td>
+                        {% if appt.status == "scheduled" %}
+                            <span class="badge bg-secondary">Scheduled</span>
+                        {% elif appt.status == "checked_in" %}
+                            <span class="badge bg-info text-dark">Checked In</span>
+                        {% elif appt.status == "completed" %}
+                            <span class="badge bg-success">Completed</span>
+                        {% elif appt.status == "doctor_unavailable" %}
+                            <span class="badge bg-warning text-dark">
+                                Doctor Unavailable
+                            </span>
+                        {% elif appt.status == "cancelled_by_patient" %}
+                            <span class="badge bg-danger">Cancelled</span>
+                        {% else %}
+                            <span class="badge bg-dark">Unknown</span>
+                        {% endif %}
+                    </td>
+
+                    <!-- PATIENT ACTIONS -->
+                    <td class="d-flex gap-1 justify-content-center flex-wrap">
+
+                        {% if appt.status == "scheduled" %}
+
+                        <!-- CHECK-IN -->
+                        <form method="post"
+                              action="{% url 'patient_checkin_appointment' appt.id %}">
+                            {% csrf_token %}
+                            <button class="btn btn-success btn-sm">
+                                ✔ Arrived
+                            </button>
+                        </form>
+
+                        <!-- CANCEL (NO POPUP) -->
+                        <form method="post"
+                              action="{% url 'patient_cancel_appointment' appt.id %}"
+                              onsubmit="return showCancelMessage(this);">
+                            {% csrf_token %}
+                            <button class="btn btn-danger btn-sm">
+                                ❌ Cancel
+                            </button>
+                        </form>
+
+                        {% else %}
+                            <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+
+                    <!-- REPORT -->
+                    <td>
+                        {% if appt.report_pdf %}
+                            <a href="{{ appt.report_pdf.url }}"
+                               class="btn btn-success btn-sm"
+                               target="_blank">
+                                ⬇ Download
+                            </a>
+                        {% else %}
+                            <span class="text-muted">
+                                Not Ready
+                            </span>
+                        {% endif %}
+                    </td>
+
+                    <!-- PATIENT TIME (NEW) -->
+                    <td>
+                        {# Preferred fields: patient_start_time and patient_end_time #}
+                        {% if appt.patient_start_time and appt.patient_end_time %}
+                            {{ appt.patient_start_time }} – {{ appt.patient_end_time }}
+                        {# fallback: a single patient_time field (if you used one) #}
+                        {% elif appt.patient_time %}
+                            {{ appt.patient_time }}
+                        {% else %}
+                            <span class="text-muted">Not Provided</span>
+                        {% endif %}
+                    </td>
+
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+        <div class="alert alert-info">
+            No appointments found.
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function showCancelMessage(form) {
+    const msg = document.getElementById("pageMessage");
+
+    msg.innerHTML = `
+        <div class="alert alert-warning">
+            Click <strong>Cancel</strong> again to confirm appointment cancellation.
+        </div>
+    `;
+
+    // allow cancel on second click
+    form.onsubmit = function () {
+        return true;
+    };
+
+    return false; // stop first submit
+}
+</script>
+{% endblock %}

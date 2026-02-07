@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Doctor Dashboard{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'appointments/doctor_dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid dashboard-wrapper">
+    <div class="row">
+
+        <!-- SIDEBAR -->
+        <div class="col-md-2 sidebar d-none d-md-block">
+    <h4>Doctor Panel</h4>
+
+    <a href="{% url 'doctor_dashboard' %}">Dashboard</a>
+
+    <a href="{% url 'doctor_today_appointments' %}">
+        Today Appointments
+    </a>
+
+    <a href="{% url 'doctor_set_availability' %}">
+        Set Availability
+    </a>
+
+    <a href="{% url 'doctor_availability_list' %}">
+        Availability List
+    </a>
+
+    <a href="/logout/">Logout</a>
+</div>
+
+
+        <!-- MAIN CONTENT -->
+        <div class="col-md-10 content">
+
+            <h2 class="mb-4">Today's Appointments</h2>
+
+            <!-- Doctor Info -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <p><strong>Email:</strong> {{ request.user.email }}</p>
+                        <p><strong>Role:</strong> Doctor</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Appointments Table -->
+            {% if appointments %}
+            <div class="table-responsive">
+                <table class="table table-bordered align-middle">
+                    <thead>
+                        <tr>
+                            <th>Patient</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for appt in appointments %}
+                        <tr>
+                            <td>{{ appt.patient.user.email }}</td>
+                            <td>{{ appt.appointment_date }}</td>
+                            <td>{{ appt.start_time }} - {{ appt.end_time }}</td>
+                            <td>
+                                <span class="badge bg-secondary">
+                                    {{ appt.status }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+                <div class="alert alert-info">
+                    No appointments today.
+                </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}

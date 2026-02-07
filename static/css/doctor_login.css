@@ -1,0 +1,110 @@
+/* Page background */
+body {
+    background: linear-gradient(135deg, #f4f6f9, #e9efff);
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+/* Center wrapper */
+.login-wrapper {
+    min-height: calc(100vh - 120px); /* navbar + footer safe */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+/* Card */
+.card {
+    width: 100%;
+    max-width: 380px;
+    background: #ffffff;
+    padding: 32px 28px;
+    border-radius: 14px;
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.15);
+    animation: fadeInUp 0.6s ease;
+}
+
+/* Title */
+.card h2 {
+    margin-bottom: 22px;
+    font-size: 26px;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+/* Inputs */
+.card input {
+    width: 100%;
+    padding: 12px 14px;
+    margin-bottom: 14px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    font-size: 15px;
+    transition: 0.25s ease;
+}
+
+.card input::placeholder {
+    color: #9ca3af;
+}
+
+/* Input focus */
+.card input:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+    outline: none;
+}
+
+/* Button */
+.card button {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, #0d6efd, #0a58ca);
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.card button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(13, 110, 253, 0.4);
+}
+
+/* Messages */
+#error, .error {
+    color: #dc3545;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+.success {
+    color: #198754;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+/* Animation */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Mobile tweaks */
+@media (max-width: 480px) {
+    .card {
+        padding: 26px 20px;
+    }
+
+    .card h2 {
+        font-size: 22px;
+    }
+}

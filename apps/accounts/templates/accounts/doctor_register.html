@@ -1,0 +1,205 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Doctor Register{% endblock %}
+
+{% block extra_css %}
+<style>
+body {
+    background: #f4f6f9 !important;
+}
+
+.register-wrapper {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.register-card {
+    width: 100%;
+    max-width: 1000px;
+    background: #ffffff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+}
+
+.register-side-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.alert {
+    transition: all 0.3s ease;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="register-wrapper">
+    <div class="register-card">
+        <div class="row g-0">
+
+            <!-- IMAGE -->
+            <div class="col-md-5 d-none d-md-block">
+                <img src="{% static 'images/doctor2.jpg' %}" class="register-side-img">
+            </div>
+
+            <!-- FORM -->
+            <div class="col-md-7 p-4">
+                <h3 class="text-center mb-3">Doctor Registration</h3>
+
+                <!-- MESSAGE BOX -->
+                <div id="formMessage" class="alert d-none text-center"></div>
+
+                <form id="doctorForm" novalidate enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <div class="row">
+
+                        <div class="col-md-6 mb-3">
+                            <label>Full Name</label>
+                            <input class="form-control" name="full_name" id="fullName">
+                            <small class="text-danger" id="nameError"></small>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label>Email</label>
+                            <input class="form-control" name="email" id="email">
+                            <small class="text-danger" id="emailError"></small>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label>Phone</label>
+                            <input class="form-control" name="phone" id="phone">
+                            <small class="text-danger" id="phoneError"></small>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label>Specialization</label>
+                            <input class="form-control" name="specialization">
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label>Qualification</label>
+                            <input class="form-control" name="qualification">
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label>Experience</label>
+                            <input type="number" class="form-control" name="experience_years">
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label>Clinic Name</label>
+                            <input class="form-control" name="clinic_name">
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label>City</label>
+                            <input class="form-control" name="city">
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label>Consultation Fee</label>
+                            <input type="number" class="form-control" name="consultation_fee">
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label>Photo</label>
+                            <input type="file" class="form-control" name="profile_image">
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label>Password</label>
+                            <input type="password" class="form-control" name="password" id="password">
+                            <small class="text-danger" id="passwordError"></small>
+                        </div>
+
+                    </div>
+
+                    <button class="btn btn-primary w-100 mt-3">Register</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById("doctorForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+
+    // Clear field errors
+    document.querySelectorAll("small").forEach(el => el.innerText = "");
+
+    // Message box
+    const messageBox = document.getElementById("formMessage");
+    messageBox.className = "alert d-none text-center";
+
+    let valid = true;
+
+    const fullName = document.getElementById("fullName").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const password = document.getElementById("password").value.trim();
+
+    if (fullName.length < 3) {
+        nameError.innerText = "Name must be at least 3 characters";
+        valid = false;
+    }
+
+    if (!email.includes("@")) {
+        emailError.innerText = "Invalid email address";
+        valid = false;
+    }
+
+    if (!/^[0-9]{10}$/.test(phone)) {
+        phoneError.innerText = "10 digit phone required";
+        valid = false;
+    }
+
+    if (password.length < 6) {
+        passwordError.innerText = "Minimum 6 characters required";
+        valid = false;
+    }
+
+    if (!valid) return;
+
+    const formData = new FormData(this);
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    try {
+        const response = await fetch("/api/doctor/register/", {
+            method: "POST",
+            body: formData,
+            headers: {
+                "X-CSRFToken": csrfToken
+            }
+        });
+
+        const data = await response.json();
+
+        messageBox.classList.remove("d-none");
+
+        if (!response.ok) {
+            messageBox.classList.add("alert-danger");
+            messageBox.innerText = data.error || "Registration failed";
+        } else {
+            messageBox.classList.add("alert-success");
+            messageBox.innerText = data.success || "Doctor registered successfully!";
+            this.reset();
+        }
+
+    } catch (error) {
+        messageBox.classList.remove("d-none");
+        messageBox.classList.add("alert-danger");
+        messageBox.innerText = "Server error. Please try again later.";
+    }
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,32 @@
+/* Page wrapper */
+.register-wrapper {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f5f7fb;   /* simple background */
+    padding: 20px;
+}
+
+/* Card */
+.register-card {
+    width: 100%;
+    max-width: 1000px;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;      /* VERY IMPORTANT */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
+
+/* Image column */
+.image-col {
+    height: 100%;
+}
+
+/* Image itself */
+.register-side-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;     /* keeps image clean */
+    display: block;
+}

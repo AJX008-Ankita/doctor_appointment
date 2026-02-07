@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Search Doctor</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        .doctor-card img {
+            height: 220px;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container mt-5">
+
+    <h3 class="mb-4">Search Doctor</h3>
+
+    <!-- Search Filters -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <input
+                type="text"
+                id="doctorName"
+                class="form-control"
+                placeholder="Doctor name"
+            >
+        </div>
+
+        <div class="col-md-4">
+            <input
+                type="text"
+                id="city"
+                class="form-control"
+                placeholder="City"
+            >
+        </div>
+
+        <div class="col-md-4">
+            <input
+                type="text"
+                id="specialization"
+                class="form-control"
+                placeholder="Specialization"
+            >
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <button class="btn btn-primary w-100" onclick="searchDoctors()">
+                Search
+            </button>
+        </div>
+    </div>
+
+    <!-- Doctor List -->
+    <div class="row" id="doctor-list"></div>
+
+</div>
+
+<script>
+function searchDoctors() {
+
+    const name = document.getElementById("doctorName").value.trim();
+    const city = document.getElementById("city").value.trim();
+    const specialization = document.getElementById("specialization").value.trim();
+
+    if (!name && !city && !specialization) {
+        alert("Please enter at least one search field");
+        return;
+    }
+
+    const params = new URLSearchParams({
+        name: name,
+        city: city,
+        specialization: specialization
+    });
+
+   fetch(`/appointments/api/doctors/search/?${params.toString()}`)
+
+
+        .then(response => response.json())
+        .then(data => {
+
+            let html = "";
+
+            if (data.length === 0) {
+                html = `
+                    <div class="col-12 text-center text-muted">
+                        No doctors found
+                    </div>
+                `;
+            }
+
+            data.forEach(doc => {
+                html += `
+                    <div class="col-md-4">
+                        <div class="card doctor-card mb-4 shadow-sm">
+
+                            ${doc.profile_image ? `
+                                <img src="${doc.profile_image}" class="card-img-top">
+                            ` : `
+                                <img src="https://via.placeholder.com/300x220?text=No+Image" class="card-img-top">
+                            `}
+
+                            <div class="card-body">
+                                <h5 class="card-title">${doc.name}</h5>
+
+                                <p class="card-text">
+                                    <strong>Specialization:</strong> ${doc.specialization}<br>
+                                    <strong>Qualification:</strong> ${doc.qualification}<br>
+                                    <strong>Experience:</strong> ${doc.experience_years} years<br>
+                                    <strong>Clinic:</strong> ${doc.clinic_name}<br>
+                                    <strong>City:</strong> ${doc.city}<br>
+                                    <strong>Fee:</strong> ₹${doc.consultation_fee}
+                                </p>
+
+             <a href="/appointments/book/${doc.id}/"
+   class="btn btn-primary w-100">
+   Book Appointment
+</a>
+     </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById("doctor-list").innerHTML = html;
+        })
+        .catch(error => {
+            console.error("Error:", error);
+        });
+  
+}
+
+      /* ================================
+   ADD THIS FUNCTION BELOW
+   ================================ */
+function selectDoctor(doctorId) {
+    // redirect to appointment booking page
+    window.location.href = `/appointments/book/${doctorId}/`;
+}
+</script>
+
+</body>
+</html>

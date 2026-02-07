@@ -1,0 +1,271 @@
+import json
+from datetime import datetime
+from rest_framework.authentication import SessionAuthentication
+from django.views.decorators.cache import never_cache
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
+from django.db import transaction
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
+
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
+from rest_framework.decorators import authentication_classes
+
+from .models import Doctor, Patient, Profile
+from .serializers import (
+    DoctorRegisterSerializer,
+    DoctorLoginSerializer,
+    PatientRegisterSerializer,
+    PatientLoginSerializer
+)
+
+# =====================================================
+# PATIENT REGISTER PAGE (HTML)
+# =====================================================
+def patient_register(request):
+    return render(request, "accounts/patient_register.html")
+
+
+# =====================================================
+# DOCTOR REGISTER PAGE (HTML)
+# =====================================================
+def doctor_register(request):
+    return render(request, "accounts/doctor_register.html")
+
+
+# =====================================================
+# DOCTOR REGISTER API (DRF - AUTO DOCUMENTED)
+# =====================================================
+@swagger_auto_schema(
+    method="post",
+    request_body=DoctorRegisterSerializer,
+    responses={201: "Doctor registered successfully"}
+)
+@api_view(["POST"])
+@permission_classes([AllowAny])
+@transaction.atomic
+def doctor_register_api(request):
+    serializer = DoctorRegisterSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    data = serializer.validated_data
+
+    full_name = data["full_name"].strip()
+    email = data["email"].strip()
+    phone = data["phone"].strip()
+    password = data["password"].strip()
+
+    # ======================
+    # Manual validations
+    # ======================
+    if len(full_name) < 3:
+        return Response({"error": "Full name must be at least 3 characters"}, status=400)
+
+    if User.objects.filter(username=email).exists():
+        return Response({"error": "Email already exists"}, status=400)
+
+    if not phone.isdigit() or len(phone) != 10:
+        return Response({"error": "Phone number must be 10 digits"}, status=400)
+
+    if len(password) < 6:
+        return Response({"error": "Password must be at least 6 characters"}, status=400)
+
+    # ======================
+    # Create User
+    # ======================
+    user = User.objects.create_user(
+        username=email,
+        email=email,
+        password=password
+    )
+
+    # ======================
+    # 🔥 CREATE PROFILE (FIX)
+    # ======================
+    Profile.objects.create(
+        user=user,
+        role="doctor"
+    )
+
+    # ======================
+    # Create Doctor
+    # ======================
+    Doctor.objects.create(
+        user=user,
+        full_name=full_name,
+        phone=phone,
+        specialization=data.get("specialization"),
+        qualification=data.get("qualification"),
+        experience_years=data.get("experience_years"),
+        clinic_name=data.get("clinic_name"),
+        city=data.get("city"),
+        consultation_fee=data.get("consultation_fee"),
+        profile_image=request.FILES.get("profile_image"),
+    )
+
+    return Response(
+        {"success": "Doctor registered successfully"},
+        status=201
+    )
+
+
+# =====================================================
+# DOCTOR LOGIN (Django view + Swagger schema)
+# =====================================================
+@never_cache
+def doctor_login(request):
+
+    # GET
+    if request.method == "GET":
+        if request.user.is_authenticated:
+            # 🔥 Already logged in → dashboard
+            return redirect("/doctor/dashboard/")
+        return render(request, "accounts/doctor_login.html")
+
+    # POST (AJAX)
+    data = json.loads(request.body)
+
+    email = data.get("email")
+    password = data.get("password")
+
+    user = authenticate(username=email, password=password)
+
+    if user is None:
+        return JsonResponse({
+            "success": False,
+            "error": "Invalid email or password"
+        }, status=400)
+
+    if user.profile.role != "doctor":
+        return JsonResponse({
+            "success": False,
+            "error": "This login is only for doctors"
+        }, status=400)
+
+    login(request, user)
+
+    # ✅ CORRECT redirect
+    return JsonResponse({
+        "success": True,
+        "redirect_url": "/doctor/dashboard/"
+    })
+
+# =====================================================
+# PATIENT LOGIN API
+# =====================================================
+@never_cache
+@api_view(["GET", "POST"])
+@authentication_classes([SessionAuthentication])
+@permission_classes([AllowAny])
+def patient_login(request):
+
+    # GET
+    if request.method == "GET":
+        if request.user.is_authenticated:
+            return redirect("/patient/dashboard/")
+        return render(request, "accounts/patient_login.html")
+
+    # POST (AJAX)
+    email = request.data.get("email")
+    password = request.data.get("password")
+
+    user = authenticate(username=email, password=password)
+
+    if user is None:
+        return Response({
+            "success": False,
+            "error": "Invalid email or password"
+        }, status=400)
+
+    if user.profile.role != "patient":
+        return Response({
+            "success": False,
+            "error": "This login is only for patients"
+        }, status=400)
+
+    login(request, user)
+
+    # ✅ CORRECT redirect
+    return Response({
+        "success": True,
+        "redirect_url": "/patient/dashboard/"
+    })
+
+# =====================================================
+# PATIENT REGISTER API
+# =====================================================
+@swagger_auto_schema(
+    method="post",
+    request_body=PatientRegisterSerializer,
+    responses={200: "Patient registered successfully"}
+)
+@api_view(["POST"])
+@permission_classes([AllowAny])
+@transaction.atomic
+def patient_register_api(request):
+    serializer = PatientRegisterSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    data = serializer.validated_data
+
+    full_name = data["full_name"].strip()
+    email = data["email"].strip().lower()
+    phone = data["phone"].strip()
+    password = data["password"].strip()
+    gender = data["gender"]
+    dob = data["date_of_birth"]
+    city = data["city"].strip()
+
+    errors = {}
+
+    if len(full_name) < 3:
+        errors["full_name"] = "Name must be at least 3 characters"
+
+    if User.objects.filter(username=email).exists():
+        errors["email"] = "Email already registered"
+
+    phone_clean = phone.replace("+", "").replace(" ", "")
+    if not phone_clean.isdigit() or len(phone_clean) < 10:
+        errors["phone"] = "Enter valid phone number"
+
+    if len(password) < 6:
+        errors["password"] = "Password must be at least 6 characters"
+
+    if errors:
+        return Response({"errors": errors}, status=400)
+
+    user = User.objects.create_user(
+        username=email,
+        email=email,
+        password=password
+    )
+
+    profile, _ = Profile.objects.get_or_create(user=user)
+    profile.role = "patient"
+    profile.save()
+
+    Patient.objects.create(
+        user=user,
+        full_name=full_name,
+        phone=phone_clean,
+        gender=gender,
+        date_of_birth=dob,
+        city=city,
+    )
+
+    return Response({
+        "success": True,
+        "message": "Patient registered successfully"
+    })
+
+
+# =====================================================
+# LOGOUT VIEW (HTML)
+# =====================================================
+def logout_view(request):
+    logout(request)
+    return redirect("/")

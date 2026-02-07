@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Patient Dashboard{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'appointments/patient_dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <h2>Patient</h2>
+
+        <a href="{% url 'patient_dashboard' %}" class="active">Dashboard</a>
+        <a href="{% url 'doctor_search_page' %}
+">Appointments</a>
+
+        <a href="{% url 'patient_appointment_status' %}" class="btn btn-primary">
+    View My Appointments
+</a>
+
+        <a href="{% url 'logout' %}">Logout</a>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="content">
+        <h1>Patient Dashboard</h1>
+
+        <div class="card">
+            <p><strong>Email:</strong> {{ request.user.email }}</p>
+            <p><strong>Role:</strong> Patient</p>
+        </div>
+
+        {% if next_appointment %}
+        <div class="card highlight">
+            <h3>Next Appointment</h3>
+            <p>Date: {{ next_appointment.appointment_date }}</p>
+            <p>Time: {{ next_appointment.start_time }} - {{ next_appointment.end_time }}</p>
+            <p>Status: {{ next_appointment.status }}</p>
+        </div>
+        {% else %}
+        <p>No upcoming appointments.</p>
+        {% endif %}
+    </main>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'appointments/appointments.js' %}"></script>
+{% endblock %}

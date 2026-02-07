@@ -1,0 +1,11 @@
+<h3>Report Preview</h3>
+
+{% if appointment.report_pdf %}
+<a href="{{ appointment.report_pdf.url }}" class="btn btn-success">
+    Download Report
+</a>
+{% else %}
+<a href="{% url 'generate_report' appointment.id %}" class="btn btn-dark">
+    Generate Report
+</a>
+{% endif %}

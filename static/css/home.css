@@ -1,0 +1,154 @@
+.hero-section {
+  background: #0d6efd;
+  padding: 80px 0 120px;
+  position: relative;
+}
+
+.hero-section h1 {
+  font-size: 48px;
+}
+
+.hero-section p {
+  font-size: 18px;
+  opacity: 0.9;
+}
+
+.hero-img {
+  max-height: 420px;
+}
+
+.search-box {
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: -40px;
+  width: 80%;
+}
+.hero-section {
+    background: linear-gradient(135deg, #0d6efd, #0a58ca);
+    padding: 80px 0;
+}
+
+.hero-img {
+    max-height: 420px;
+    object-fit: cover;
+}
+
+
+/* footer.html */
+.dark-footer {
+  background: linear-gradient(180deg, #0a0f1c, #000000);
+  color: #cfd3dc;
+  font-family: "Segoe UI", sans-serif;
+}
+
+/* Footer Content */
+.footer-content {
+  padding: 70px 0 30px;
+}
+
+.footer-logo {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.footer-desc {
+  font-size: 0.95rem;
+  margin-top: 10px;
+  line-height: 1.6;
+}
+
+/* Titles */
+.footer-title {
+  color: #ffc107;
+  margin-bottom: 15px;
+  font-size: 1.1rem;
+}
+
+/* Links */
+.footer-links {
+  list-style: none;
+  padding: 0;
+}
+
+.footer-links li {
+  margin-bottom: 10px;
+}
+
+.footer-links a {
+  color: #cfd3dc;
+  text-decoration: none;
+  transition: 0.3s;
+}
+
+.footer-links a:hover {
+  color: #0d6efd;
+  padding-left: 6px;
+}
+
+/* Contact */
+.footer-contact {
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+
+/* Divider */
+.footer-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 40px 0 20px;
+}
+
+/* Bottom */
+.footer-bottom p {
+  font-size: 0.9rem;
+  color: #aaa;
+}
+
+.footer-bottom span {
+  color: #ffc107;
+  font-weight: 600;
+}
+
+
+/* ===== Register Page Background ===== */
+.register-bg {
+    position: fixed;
+    inset: 0;
+    background: url("/static/images/doctor3.jpg") no-repeat center center/cover;
+    filter: blur(10px);
+    z-index: -2;
+}
+
+.register-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.65);
+    z-index: -1;
+}
+
+/* Center form */
+.register-wrapper {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* White card */
+.register-card {
+    width: 900px;
+    border-radius: 12px;
+    box-shadow: 0 10px 35px rgba(0,0,0,0.2);
+    background: #fff;
+}
+
+/* Blue register button (same style) */
+.btn-primary {
+    background-color: #0d6efd;
+    border: none;
+}

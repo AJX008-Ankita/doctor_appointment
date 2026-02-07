@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Today's Appointments{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'appointments/doctor_dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <h2 class="mb-3">Appointments for {{ today }}</h2>
+
+    <!-- PAGE MESSAGE -->
+    <div id="pageMessage" class="mb-3"></div>
+
+    {% if appointments %}
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+            <thead class="table-dark text-center">
+                <tr>
+                    <th>Patient Details</th>
+                    <th>Date</th>
+                    <th>Doctor Time</th>
+                    <th>Patient Time</th>   <!-- ✅ ADDED -->
+                    <th>Status</th>
+                    <th style="width: 280px;">Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+            {% for appt in appointments %}
+                <tr>
+
+                    <!-- PATIENT DETAILS -->
+                    <td>
+                        <strong>Name:</strong>
+                        {{ appt.patient.full_name|default:appt.patient.user.get_full_name }} <br>
+
+                        <strong>Email:</strong>
+                        {{ appt.patient.user.email }} <br>
+
+                        {% if appt.patient.phone %}
+                        <strong>Phone:</strong>
+                        {{ appt.patient.phone }} <br>
+                        {% endif %}
+
+                        {% if appt.patient.gender %}
+                        <strong>Gender:</strong>
+                        {{ appt.patient.gender }} <br>
+                        {% endif %}
+
+                        {% if appt.patient.date_of_birth %}
+                        <strong>DOB:</strong>
+                        {{ appt.patient.date_of_birth|date:"d M Y" }} <br>
+
+                        <strong>Age:</strong>
+                        {{ appt.patient.age }} years <br>
+                        {% endif %}
+
+                        {% if appt.patient.city %}
+                        <strong>City:</strong>
+                        {{ appt.patient.city }}
+                        {% endif %}
+                    </td>
+
+                    <!-- DATE -->
+                    <td class="text-center">
+                        {{ appt.appointment_date }}
+                    </td>
+
+                    <!-- DOCTOR TIME -->
+                    <td class="text-center">
+                        {{ appt.start_time }} – {{ appt.end_time }}
+                    </td>
+
+                    <!-- ✅ PATIENT TIME (ADDED) -->
+                    <td class="text-center">
+                        {% if appt.patient_start_time and appt.patient_end_time %}
+                            {{ appt.patient_start_time }} – {{ appt.patient_end_time }}
+                        {% else %}
+                            <span class="text-muted">Not Provided</span>
+                        {% endif %}
+                    </td>
+
+                    <!-- STATUS -->
+                    <td class="text-center">
+                        <span class="badge bg-info text-dark">
+                            {{ appt.status }}
+                        </span>
+                    </td>
+
+                    <!-- ACTIONS -->
+                    <td>
+                        <div class="d-flex flex-column gap-2">
+
+                            <!-- UPDATE STATUS -->
+                            <form method="post" action="{% url 'doctor_update_appointment' appt.id %}">
+                                {% csrf_token %}
+                                <div class="input-group input-group-sm">
+                                    <select name="status" class="form-select">
+                                        <option value="scheduled" {% if appt.status == "scheduled" %}selected{% endif %}>Scheduled</option>
+                                        <option value="checked_in" {% if appt.status == "checked_in" %}selected{% endif %}>Checked In</option>
+                                        <option value="completed" {% if appt.status == "completed" %}selected{% endif %}>Completed</option>
+                                        <option value="doctor_unavailable" {% if appt.status == "doctor_unavailable" %}selected{% endif %}>Doctor Unavailable</option>
+                                    </select>
+                                    <button class="btn btn-primary">Update</button>
+                                </div>
+                            </form>
+
+                            <!-- ACTION BUTTONS -->
+                            <div class="d-flex gap-1 justify-content-center flex-wrap">
+                                <a href="{% url 'write_notes' appt.id %}" class="btn btn-warning btn-sm">
+                                    📝 Notes
+                                </a>
+
+                                <a href="{% url 'report_preview' appt.id %}" class="btn btn-secondary btn-sm">
+                                    📎 Report
+                                </a>
+                            </div>
+
+                            <!-- DELETE -->
+                            <form method="post"
+                                  action="{% url 'doctor_delete_appointment' appt.id %}"
+                                  onsubmit="return showDeleteMessage(this);">
+                                {% csrf_token %}
+                                <button class="btn btn-danger btn-sm w-100">
+                                    Delete
+                                </button>
+                            </form>
+
+                        </div>
+                    </td>
+
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+        <div class="alert alert-info">
+            No appointments today.
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function showDeleteMessage(form) {
+    const msg = document.getElementById("pageMessage");
+
+    msg.innerHTML = `
+        <div class="alert alert-warning">
+            Click delete again to confirm removal of this appointment.
+        </div>
+    `;
+
+    form.onsubmit = function () {
+        return true;
+    };
+
+    return false;
+}
+</script>
+{% endblock %}

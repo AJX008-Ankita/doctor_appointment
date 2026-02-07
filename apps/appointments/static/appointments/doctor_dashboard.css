@@ -1,0 +1,127 @@
+/* doctor_dashboard.css - card-based dashboard styles */
+
+/* Basic page resets */
+.dashboard-app { font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; color:#333; }
+.top-navbar {
+    height:60px;
+    background: linear-gradient(90deg,#2e66a8,#3b6fb7);
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 18px;
+    border-radius:6px;
+    margin-bottom:18px;
+}
+.top-navbar .app-title { margin:0; font-weight:600; }
+.top-navbar .menu-toggle { background:transparent; border:0; color:#fff; font-size:20px; margin-right:10px; }
+.top-navbar .user-info { display:flex; align-items:center; gap:10px; }
+.top-navbar .avatar { width:36px; height:36px; border-radius:50%; object-fit:cover; }
+
+/* Layout */
+.dashboard-wrapper .row { --bs-gutter-x: 0; }
+.sidebar {
+    background:#f8f9fb;
+    min-height: calc(100vh - 110px);
+    border-right:1px solid rgba(0,0,0,0.05);
+    padding:20px 12px;
+}
+.sidebar-inner { position:sticky; top:20px; }
+.sidebar-title { font-size:14px; color:#444; margin-bottom:12px; }
+.sidebar-nav { display:flex; flex-direction:column; gap:8px; }
+.sidebar-nav a {
+    color:#2c3e50;
+    text-decoration:none;
+    padding:8px 10px;
+    border-radius:6px;
+    font-size:14px;
+}
+.sidebar-nav a.active, .sidebar-nav a:hover {
+    background:#e9f0fb;
+    color:#1f4f8b;
+}
+
+/* Content area */
+.content { background:transparent; padding-left:28px; }
+.page-heading { margin:0; font-weight:700; font-size:22px; }
+
+/* Stat card inline */
+.stat-card-inline { background:#fff; padding:10px 12px; border-radius:8px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+
+/* Tabs row */
+.tabs-row { display:flex; gap:8px; margin-bottom:12px; }
+.tab {
+    padding:8px 12px;
+    background:#f3f6fb;
+    border-radius:8px;
+    font-size:13px;
+    color:#3b5f86;
+}
+.tab.active { background:#fff; box-shadow:0 2px 6px rgba(16,24,40,0.06); }
+
+/* Cards list */
+.cards-list { display:flex; flex-direction:column; gap:14px; }
+
+/* Appointment card */
+.appointment-card {
+    display:flex;
+    justify-content:space-between;
+    gap:18px;
+    background:#fff;
+    border-radius:10px;
+    padding:14px;
+    align-items:center;
+    box-shadow: 0 6px 18px rgba(35,50,80,0.05);
+    border: 1px solid rgba(16,24,40,0.04);
+}
+
+/* Left: date + main details */
+.card-left { display:flex; gap:16px; align-items:center; min-width:0; }
+.card-date {
+    min-width:110px;
+    text-align:left;
+}
+.card-date-top { font-weight:700; color:#1f4f8b; font-size:14px; }
+.card-time { font-size:13px; color:#6b7280; margin-top:4px; }
+
+/* Main details */
+.card-main { min-width:220px; }
+.card-title strong { display:block; font-size:15px; color:#1f2937; }
+.card-sub { font-size:13px; color:#6b7280; margin-top:2px; }
+
+/* Right side (status + actions) */
+.card-right { display:flex; flex-direction:column; gap:8px; align-items:flex-end; min-width:260px; }
+
+/* Status badge */
+.status-badge {
+    display:inline-block;
+    padding:6px 10px;
+    border-radius:14px;
+    font-size:13px;
+    font-weight:600;
+}
+.status-scheduled { background:#e8f3ff; color:#1f6fb8; }
+.status-checked_in { background:#e7faf1; color:#118e5a; }
+.status-completed { background:#f2f6f9; color:#4b5563; }
+.status-doctor_unavailable { background:#fff4f2; color:#b6413a; }
+.status-unknown { background:#f3f4f6; color:#374151; }
+
+/* Actions layout */
+.actions-column { display:flex; flex-direction:column; gap:8px; width:100%; }
+.update-status { display:flex; gap:6px; }
+.update-status .form-select { min-width:140px; }
+
+/* Buttons row (wrap on small screens) */
+.buttons-row { display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end; }
+.buttons-row .btn { padding:6px 9px; font-size:13px; }
+
+/* Delete */
+.delete-form .btn-danger { background:#d9534f; border-color:#d43f3a; }
+
+/* Responsive */
+@media (max-width: 992px) {
+    .sidebar { display:none; }
+    .card-right { align-items:flex-start; }
+    .appointment-card { flex-direction:column; align-items:stretch; }
+    .card-left { flex-direction:row; }
+}
