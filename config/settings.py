@@ -21,9 +21,12 @@ load_dotenv(dotenv_path=BASE_DIR / '.env')
 # SECURITY
 # =========================
 SECRET_KEY = os.getenv("SECRET_KEY", "unsafe-dev-key")
+DEBUG = os.getenv("DEBUG", "False") == "True"
 
-DEBUG = True
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv(
+    "ALLOWED_HOSTS",
+    "doctor-appointment-gpam.onrender.com"
+).split(",")
 
 
 # =========================
