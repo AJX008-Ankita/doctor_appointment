@@ -30,7 +30,8 @@ ALLOWED_HOSTS = os.getenv(
 
 # ==================================================
 # APPLICATIONS
- INSTALLED_APPS = [
+# ==================================================
+INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -53,8 +54,6 @@ ALLOWED_HOSTS = os.getenv(
 # ==================================================
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-
-    # WhiteNoise (REQUIRED for Render)
     'whitenoise.middleware.WhiteNoiseMiddleware',
 
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -96,11 +95,11 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 # ==================================================
-# DATABASE (PostgreSQL)
+# DATABASE (PostgreSQL – Neon compatible)
 # ==================================================
 DATABASES = {
     "default": {
-        "ENGINE": os.getenv("DB_ENGINE", "django.db.backends.postgresql"),
+        "ENGINE": "django.db.backends.postgresql",
         "NAME": os.getenv("DB_NAME"),
         "USER": os.getenv("DB_USER"),
         "PASSWORD": os.getenv("DB_PASSWORD"),
@@ -111,7 +110,6 @@ DATABASES = {
         },
     }
 }
-
 
 # ==================================================
 # PASSWORD VALIDATION
@@ -132,7 +130,7 @@ USE_I18N = True
 USE_TZ = True
 
 # ==================================================
-# STATIC FILES (CSS / JS / IMAGES)
+# STATIC FILES
 # ==================================================
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
@@ -141,25 +139,31 @@ STATICFILES_DIRS = []
 if (BASE_DIR / "static").exists():
     STATICFILES_DIRS.append(BASE_DIR / "static")
 
-# WhiteNoise storage
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # ==================================================
-# MEDIA FILES (UPLOADS)
+# MEDIA FILES
 # ==================================================
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
 # ==================================================
 # DEFAULT PRIMARY KEY
 # ==================================================
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # ==================================================
-# REST FRAMEWORK
+# REST FRAMEWORK + SWAGGER
 # ==================================================
 REST_FRAMEWORK = {
-    'DEFAULT_RENDERER_CLASSES': (
-        'rest_framework.renderers.JSONRenderer',
-    )
+    "DEFAULT_RENDERER_CLASSES": (
+        "rest_framework.renderers.JSONRenderer",
+    ),
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Doctor Appointment API",
+    "DESCRIPTION": "API documentation for Doctor Appointment System",
+    "VERSION": "1.0.0",
 }
