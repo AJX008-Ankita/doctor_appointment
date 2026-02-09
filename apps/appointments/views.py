@@ -413,18 +413,25 @@ def generate_report(request, appointment_id):
     except MedicalNote.DoesNotExist:
         return HttpResponse("Medical note not found")
 
-    # Render-safe temp directory
-    reports_dir = os.path.join("/tmp", "reports")
+    # ✅ Render-safe temp directory
+    reports_dir = "/tmp/reports"
     os.makedirs(reports_dir, exist_ok=True)
 
-    file_path = os.path.join(reports_dir, f"appointment_{appointment.id}.pdf")
+    file_path = os.path.join(
+        reports_dir,
+        f"appointment_{appointment.id}.pdf"
+    )
 
+    # =========================
+    # CREATE PDF (ReportLab)
+    # =========================
     c = canvas.Canvas(file_path)
     c.setFont("Helvetica", 12)
 
     y = 800
     c.drawString(50, y, "MEDICAL REPORT")
     y -= 40
+
     c.drawString(50, y, f"Patient: {appointment.patient.full_name}")
     y -= 20
     c.drawString(50, y, f"Doctor: {appointment.doctor.full_name}")
@@ -449,19 +456,26 @@ def generate_report(request, appointment_id):
     c.showPage()
     c.save()
 
+    # 🔒 Ensure file is fully written
+    with open(file_path, "rb"):
+        pass
+
+    # =========================
+    # UPLOAD TO CLOUDINARY
+    # =========================
     upload_result = cloudinary.uploader.upload(
         file_path,
-        resource_type="raw",
+        resource_type="image",   # ⭐ IMPORTANT (not raw)
         folder="media/reports",
         public_id=f"appointment_{appointment.id}",
         overwrite=True
     )
 
+    # Save Cloudinary URL
     appointment.report_pdf = upload_result["secure_url"]
     appointment.save()
 
     return redirect("report_preview", appointment_id=appointment.id)
-
 #==============================================================
 #patient reschdule appointment
 #=============================================================
