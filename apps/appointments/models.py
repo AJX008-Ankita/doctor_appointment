@@ -34,11 +34,9 @@ class Appointment(models.Model):
 
     appointment_date = models.DateField()
 
-    # ✅ Doctor approved time
     start_time = models.TimeField()
     end_time = models.TimeField()
 
-    # ✅ Patient requested time (NEW)
     patient_start_time = models.TimeField(null=True, blank=True)
     patient_end_time = models.TimeField(null=True, blank=True)
 
@@ -49,10 +47,12 @@ class Appointment(models.Model):
         choices=STATUS_CHOICES,
         default='scheduled'
     )
-report_pdf = models.URLField(
-    blank=True,
-    null=True
-)
+
+    # ✅ Cloudinary URL stored here
+    report_pdf = models.URLField(
+        blank=True,
+        null=True
+    )
 
     created_at = models.DateTimeField(auto_now_add=True)
 
