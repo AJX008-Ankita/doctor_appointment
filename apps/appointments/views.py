@@ -1,3 +1,4 @@
+import cloudinary.uploader
 from django.http import HttpResponse, FileResponse
 import json
 from datetime import date
@@ -394,10 +395,11 @@ def save_notes(request, appointment_id):
 # -------------------
 def report_preview(request, appointment_id):
     appointment = get_object_or_404(Appointment, id=appointment_id)
-    return render(request, "appointments/report_preview.html", {
-        "appointment": appointment
-    })
 
+    if not appointment.report_pdf:
+        return HttpResponse("Report not generated yet")
+
+    return redirect(appointment.report_pdf)
 
 # -------------------
 # GENERATE PDF (ReportLab)
@@ -410,6 +412,7 @@ def generate_report(request, appointment_id):
     except MedicalNote.DoesNotExist:
         return HttpResponse("Medical note not found")
 
+    # Create temp PDF locally
     reports_dir = os.path.join(settings.MEDIA_ROOT, "reports")
     os.makedirs(reports_dir, exist_ok=True)
 
@@ -431,25 +434,36 @@ def generate_report(request, appointment_id):
 
     c.drawString(50, y, "Notes:")
     y -= 20
-    c.drawString(70, y, note.notes)
+    c.drawString(70, y, note.notes or "")
     y -= 40
 
     c.drawString(50, y, "Prescription:")
     y -= 20
-    c.drawString(70, y, note.prescription)
+    c.drawString(70, y, note.prescription or "")
     y -= 40
 
     c.drawString(50, y, "Follow Up:")
     y -= 20
-    c.drawString(70, y, note.follow_up)
+    c.drawString(70, y, note.follow_up or "")
 
     c.showPage()
     c.save()
 
-    appointment.report_pdf.name = f"reports/appointment_{appointment.id}.pdf"
+    # ✅ UPLOAD TO CLOUDINARY AS RAW
+    upload_result = cloudinary.uploader.upload(
+        file_path,
+        resource_type="raw",
+        folder="media/reports",
+        public_id=f"appointment_{appointment.id}",
+        overwrite=True
+    )
+
+    # ✅ SAVE CLOUDINARY URL
+    appointment.report_pdf = upload_result["secure_url"]
     appointment.save()
 
-    return FileResponse(open(file_path, "rb"), content_type="application/pdf")
+    return redirect("report_preview", appointment_id=appointment.id)
+
 #==============================================================
 #patient reschdule appointment
 #=============================================================
