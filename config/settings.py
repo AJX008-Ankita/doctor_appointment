@@ -131,12 +131,12 @@ USE_TZ = True
 # ==================================================
 # STATIC FILES (CSS / JS / IMAGES)
 # ==================================================
-STATIC_URL = '/static/'
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# Local static directory
-STATICFILES_DIRS = [
-    BASE_DIR / 'static',
-]
+STATICFILES_DIRS = []
+if (BASE_DIR / "static").exists():
+    STATICFILES_DIRS.append(BASE_DIR / "static")
 
 # Production static directory (Render)
 STATIC_ROOT = BASE_DIR / 'staticfiles'
