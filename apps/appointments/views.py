@@ -400,7 +400,12 @@ def report_preview(request, appointment_id):
     if not appointment.report_pdf:
         return HttpResponse("Report not generated yet")
 
-    return redirect(appointment.report_pdf)
+    return redirect(
+        appointment.report_pdf.replace(
+            "/upload/",
+            "/upload/fl_inline/"
+        )
+    )
 
 # -------------------
 # GENERATE PDF (ReportLab)
@@ -460,12 +465,12 @@ def generate_report(request, appointment_id):
     with open(file_path, "rb"):
         pass
 
-    # =========================
+      # =========================
     # UPLOAD TO CLOUDINARY
     # =========================
     upload_result = cloudinary.uploader.upload(
         file_path,
-        resource_type="image",   # ⭐ IMPORTANT (not raw)
+        resource_type="raw",   # ✅ correct
         folder="media/reports",
         public_id=f"appointment_{appointment.id}",
         overwrite=True
