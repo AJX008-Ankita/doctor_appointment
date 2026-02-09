@@ -3,83 +3,122 @@
 
 {% block title %}Doctor Dashboard{% endblock %}
 
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'appointments/doctor_dashboard.css' %}">
-{% endblock %}
-
 {% block content %}
-<div class="container-fluid dashboard-wrapper">
-    <div class="row">
+<div class="container-fluid">
+    <div class="row min-vh-100">
 
-        <!-- SIDEBAR -->
-        <div class="col-md-2 sidebar d-none d-md-block">
-    <h4>Doctor Panel</h4>
+        <!-- Sidebar (Light) -->
+        <div class="col-md-2 bg-white border-end p-0">
+            <div class="d-flex flex-column h-100 p-3">
 
-    <a href="{% url 'doctor_dashboard' %}">Dashboard</a>
+                <h5 class="text-primary fw-bold mb-4 text-center">
+                    🩺 Doctor Panel
+                </h5>
 
-    <a href="{% url 'doctor_today_appointments' %}">
-        Today Appointments
-    </a>
+                <ul class="nav nav-pills flex-column gap-2">
+                    <li class="nav-item">
+                        <a href="{% url 'doctor_dashboard' %}" class="nav-link active">
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'doctor_today_appointments' %}" class="nav-link text-dark">
+                            Today Appointments
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'doctor_set_availability' %}" class="nav-link text-dark">
+                            Set Availability
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'doctor_availability_list' %}" class="nav-link text-dark">
+                            Availability List
+                        </a>
+                    </li>
+                </ul>
 
-    <a href="{% url 'doctor_set_availability' %}">
-        Set Availability
-    </a>
+                <div class="mt-auto pt-3">
+                    <a href="/logout/" class="btn btn-outline-danger w-100 btn-sm">
+                        Logout
+                    </a>
+                </div>
 
-    <a href="{% url 'doctor_availability_list' %}">
-        Availability List
-    </a>
+            </div>
+        </div>
 
-    <a href="/logout/">Logout</a>
-</div>
+        <!-- Main Content -->
+        <div class="col-md-10 p-4 bg-light">
 
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold mb-0">Today's Appointments</h2>
+                <span class="badge bg-primary-subtle text-primary px-3 py-2">
+                    {{ request.user.email }}
+                </span>
+            </div>
 
-        <!-- MAIN CONTENT -->
-        <div class="col-md-10 content">
-
-            <h2 class="mb-4">Today's Appointments</h2>
-
-            <!-- Doctor Info -->
+            <!-- Doctor Profile Card -->
             <div class="row mb-4">
-                <div class="col-md-4">
-                    <div class="stat-card">
-                        <p><strong>Email:</strong> {{ request.user.email }}</p>
-                        <p><strong>Role:</strong> Doctor</p>
+                <div class="col-lg-4 col-md-6">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-body">
+                            <h6 class="text-muted mb-2">Doctor Profile</h6>
+                            <h5 class="fw-bold mb-1">
+                                {{ request.user.get_full_name|default:"Doctor" }}
+                            </h5>
+                            <p class="mb-1 text-muted">
+                                {{ request.user.email }}
+                            </p>
+                            <span class="badge bg-success-subtle text-success">
+                                Doctor
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Appointments Table -->
+            <!-- Appointments -->
             {% if appointments %}
-            <div class="table-responsive">
-                <table class="table table-bordered align-middle">
-                    <thead>
-                        <tr>
-                            <th>Patient</th>
-                            <th>Date</th>
-                            <th>Time</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for appt in appointments %}
-                        <tr>
-                            <td>{{ appt.patient.user.email }}</td>
-                            <td>{{ appt.appointment_date }}</td>
-                            <td>{{ appt.start_time }} - {{ appt.end_time }}</td>
-                            <td>
-                                <span class="badge bg-secondary">
-                                    {{ appt.status }}
-                                </span>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Patient</th>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for appt in appointments %}
+                                <tr>
+                                    <td>{{ appt.patient.user.email }}</td>
+                                    <td>{{ appt.appointment_date }}</td>
+                                    <td>{{ appt.start_time }} – {{ appt.end_time }}</td>
+                                    <td>
+                                        <span class="badge
+                                            {% if appt.status == 'scheduled' %}
+                                                bg-info-subtle text-info
+                                            {% else %}
+                                                bg-success-subtle text-success
+                                            {% endif %}
+                                        ">
+                                            {{ appt.get_status_display }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
             {% else %}
-                <div class="alert alert-info">
-                    No appointments today.
-                </div>
+            <div class="alert alert-info shadow-sm">
+                No appointments today.
+            </div>
             {% endif %}
 
         </div>

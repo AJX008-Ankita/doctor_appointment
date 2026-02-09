@@ -1,44 +1,136 @@
+/* ===============================
+   PATIENT DASHBOARD CSS
+   =============================== */
+
+/* Page wrapper */
 .layout {
     display: flex;
-    min-height: 100vh;
+    min-height: calc(100vh - 70px); /* accounts for navbar */
+    background-color: #f8fafc;
 }
 
+/* ===============================
+   SIDEBAR
+   =============================== */
 .sidebar {
-    width: 220px;
-    background: #0d6efd;
-    color: #fff;
-    padding: 20px;
+    width: 260px;
+    background: linear-gradient(180deg, #2563eb, #1e40af);
+    color: #ffffff;
+    padding: 25px 20px;
 }
 
 .sidebar h2 {
-    margin-bottom: 20px;
+    text-align: center;
+    font-size: 24px;
+    margin-bottom: 30px;
+    font-weight: 600;
 }
 
 .sidebar a {
     display: block;
-    color: #fff;
+    color: #e5e7eb;
     text-decoration: none;
-    margin-bottom: 12px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    font-size: 15px;
+    transition: all 0.3s ease;
+}
+
+.sidebar a:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
 }
 
 .sidebar a.active {
-    font-weight: bold;
-    text-decoration: underline;
+    background-color: #ffffff;
+    color: #1e40af;
+    font-weight: 600;
 }
 
+/* Button link */
+.sidebar .btn {
+    margin-top: 20px;
+    width: 100%;
+    background-color: #22c55e;
+    border: none;
+    color: #ffffff;
+    font-weight: 500;
+}
+
+.sidebar .btn:hover {
+    background-color: #16a34a;
+}
+
+/* ===============================
+   MAIN CONTENT
+   =============================== */
 .content {
     flex: 1;
-    padding: 30px;
-    background: #f8f9fa;
+    padding: 35px 40px;
 }
 
+.content h1 {
+    font-size: 28px;
+    margin-bottom: 25px;
+    color: #0f172a;
+}
+
+/* ===============================
+   CARDS
+   =============================== */
 .card {
-    background: #fff;
-    padding: 20px;
-    margin-bottom: 20px;
-    border-radius: 6px;
+    background-color: #ffffff;
+    border-radius: 14px;
+    padding: 22px 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
 }
 
+.card p {
+    margin-bottom: 10px;
+    font-size: 15px;
+    color: #334155;
+}
+
+.card p strong {
+    color: #0f172a;
+}
+
+/* Highlight appointment card */
 .card.highlight {
-    border-left: 5px solid #0d6efd;
+    border-left: 6px solid #2563eb;
+    background: linear-gradient(90deg, #eff6ff, #ffffff);
+}
+
+.card.highlight h3 {
+    color: #1d4ed8;
+    margin-bottom: 12px;
+}
+
+/* Empty state text */
+.content > p {
+    font-size: 16px;
+    color: #64748b;
+    margin-top: 10px;
+}
+
+/* ===============================
+   RESPONSIVE
+   =============================== */
+@media (max-width: 992px) {
+    .layout {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .content {
+        padding: 25px 20px;
+    }
 }

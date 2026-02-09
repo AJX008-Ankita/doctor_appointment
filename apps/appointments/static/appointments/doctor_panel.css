@@ -1,0 +1,288 @@
+/* static/appointments/doctor_panel.css
+   Responsive Doctor Dashboard
+   Desktop: left sidebar fixed width, content to the right
+   Mobile: sidebar becomes a top horizontal nav, content fills below
+*/
+
+/* color variables */
+:root{
+  --bg: #f6f8fb;
+  --surface: #ffffff;
+  --muted: #6c757d;
+  --primary: #2b7be4;
+  --accent: #0b63d6;
+  --success: #28a745;
+  --danger: #dc3545;
+  --shadow: 0 6px 18px rgba(34,41,47,0.06);
+  --max-width: 1200px;
+  --sidebar-width: 260px;
+  --gutter: 20px;
+  --radius: 10px;
+}
+
+/* Reset-ish (only what we need) */
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: var(--bg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  color: #222;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  box-sizing: border-box;
+}
+
+/* Outer container that your template already provides */
+.dashboard-wrapper {
+  min-height: 100vh;
+  display: block;
+  padding: 28px;
+  box-sizing: border-box;
+  max-width: none;
+}
+
+/* Flex row: sidebar + content */
+.dashboard-wrapper .row {
+  display: flex;
+  gap: var(--gutter);
+  align-items: flex-start;
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: var(--sidebar-width);
+  min-width: var(--sidebar-width);
+  background: linear-gradient(180deg, var(--surface), #fbfdff);
+  border-radius: var(--radius);
+  padding: 22px;
+  box-shadow: var(--shadow);
+  height: calc(100vh - 56px);
+  overflow-y: auto;
+  position: sticky;
+  top: 28px;
+  box-sizing: border-box;
+  border: 1px solid rgba(20,35,50,0.04);
+}
+
+/* Header inside sidebar */
+.sidebar h4 {
+  margin: 0 0 12px 0;
+  font-size: 18px;
+  letter-spacing: -0.2px;
+  color: var(--accent);
+}
+
+/* nav links */
+.sidebar a {
+  display: block;
+  padding: 10px 12px;
+  margin: 6px 0;
+  border-radius: 8px;
+  color: #123446;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background .15s ease, transform .06s ease;
+  font-size: 14px;
+}
+
+.sidebar a:hover,
+.sidebar a:focus {
+  background: rgba(11,99,214,0.06);
+  transform: translateY(-1px);
+}
+
+/* emphasize logout visually separated */
+.sidebar a[href*="logout"] {
+  margin-top: 12px;
+  color: var(--danger);
+  font-weight: 700;
+}
+
+/* MAIN CONTENT */
+.content {
+  flex: 1 1 auto;
+  min-width: 0; /* allow shrinking */
+  background: transparent;
+  padding: 6px 10px;
+  box-sizing: border-box;
+}
+
+/* Page title */
+.content h2 {
+  margin: 8px 0 18px;
+  font-size: 26px;
+  color: #0f1720;
+}
+
+/* stat card */
+.stat-card {
+  background: var(--surface);
+  padding: 14px;
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(20,35,50,0.04);
+  font-size: 14px;
+  color: #1f2b36;
+}
+
+/* Appointments Table */
+.table-responsive {
+  background: var(--surface);
+  border-radius: 10px;
+  padding: 12px;
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(20,35,50,0.04);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.table thead th {
+  text-align: left;
+  padding: 12px 10px;
+  font-weight: 700;
+  color: #0c1620;
+  border-bottom: 1px solid rgba(15,20,25,0.06);
+}
+
+.table tbody td {
+  padding: 12px 10px;
+  vertical-align: middle;
+  border-bottom: 1px dashed rgba(15,20,25,0.04);
+  color: #25343f;
+  word-break: break-word;
+}
+
+/* Badge */
+.badge {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.2px;
+}
+
+/* specific badge colors (if your template sets class bg-secondary etc. we'll style them) */
+.badge.bg-secondary { background: rgba(99,102,241,0.12); color: #4f46e5; }
+.badge.bg-success   { background: rgba(72,187,120,0.12); color: var(--success); }
+.badge.bg-danger    { background: rgba(220,53,69,0.08); color: var(--danger); }
+
+/* Empty state */
+.alert {
+  background: #fff8dd;
+  border: 1px solid rgba(204,153,0,0.18);
+  padding: 14px;
+  border-radius: 8px;
+  color: #6a4d00;
+  box-shadow: none;
+}
+
+/* Responsive tweaks */
+@media (max-width: 992px) {
+  :root { --sidebar-width: 220px; }
+  .sidebar {
+    width: var(--sidebar-width);
+    min-width: var(--sidebar-width);
+    height: calc(100vh - 48px);
+    top: 24px;
+  }
+  .content h2 { font-size: 22px; }
+}
+
+/* Mobile: collapse sidebar into top bar (no JS) */
+@media (max-width: 768px) {
+  .dashboard-wrapper {
+    padding: 12px;
+  }
+
+  /* make the container column flow */
+  .dashboard-wrapper .row {
+    flex-direction: column;
+  }
+
+  /* Sidebar becomes top nav */
+  .sidebar {
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    right: 12px;
+    width: auto;
+    min-width: 0;
+    height: auto;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    overflow-x: auto;
+    border-radius: 12px;
+    z-index: 50;
+  }
+  .sidebar::-webkit-scrollbar { height: 6px; }
+  .sidebar::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.07); border-radius: 6px; }
+
+  .sidebar h4 {
+    display: none; /* keep nav compact */
+  }
+
+  .sidebar a {
+    padding: 8px 10px;
+    white-space: nowrap;
+    font-size: 13px;
+    border-radius: 8px;
+  }
+
+  /* content sits below top nav */
+  .content {
+    margin-top: 72px; /* make room for fixed top nav */
+    padding: 8px;
+  }
+
+  .sidebar a[href*="logout"] {
+    margin-left: 8px;
+    color: var(--danger);
+    font-weight: 700;
+  }
+
+  /* Make table more mobile friendly (stacked look) */
+  .table thead {
+    display: none;
+  }
+  .table tbody tr {
+    display: block;
+    margin-bottom: 12px;
+    background: transparent;
+    border-radius: 8px;
+    padding: 10px;
+  }
+  .table tbody td {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: none;
+  }
+  .table tbody td::before {
+    content: attr(data-label);
+    font-weight: 700;
+    color: var(--muted);
+    margin-right: 8px;
+    flex: 0 0 42%;
+    text-transform: capitalize;
+    font-size: 13px;
+  }
+  .table tbody td:last-child { border-bottom: none; }
+}
+
+/* Small extra niceties */
+a, button {
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}

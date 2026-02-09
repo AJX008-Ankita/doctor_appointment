@@ -1,68 +1,81 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Search Doctor</title>
+{% extends "base.html" %}
+{% load static %}
 
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+{% block title %}Search Doctor{% endblock %}
 
-    <style>
-        .doctor-card img {
-            height: 220px;
-            object-fit: cover;
-        }
-    </style>
-</head>
-<body>
+{% block extra_css %}
+<style>
+    .search-card {
+        border-radius: 14px;
+    }
 
-<div class="container mt-5">
+    .doctor-card img {
+        height: 220px;
+        object-fit: cover;
+    }
 
-    <h3 class="mb-4">Search Doctor</h3>
+    .doctor-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border-radius: 14px;
+    }
 
-    <!-- Search Filters -->
-    <div class="row mb-4">
-        <div class="col-md-4">
-            <input
-                type="text"
-                id="doctorName"
-                class="form-control"
-                placeholder="Doctor name"
-            >
-        </div>
+    .doctor-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+    }
 
-        <div class="col-md-4">
-            <input
-                type="text"
-                id="city"
-                class="form-control"
-                placeholder="City"
-            >
-        </div>
+    .badge-special {
+        background-color: #e7f1ff;
+        color: #0d6efd;
+    }
+</style>
+{% endblock %}
 
-        <div class="col-md-4">
-            <input
-                type="text"
-                id="specialization"
-                class="form-control"
-                placeholder="Specialization"
-            >
+{% block content %}
+<div class="container my-5">
+
+    <!-- Page Title -->
+    <div class="text-center mb-4">
+        <h2 class="fw-bold">Find Your Doctor</h2>
+        <p class="text-muted">Search by name, city, or specialization</p>
+    </div>
+
+    <!-- Search Box -->
+    <div class="card shadow-sm search-card mb-5">
+        <div class="card-body p-4">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <input type="text" id="doctorName" class="form-control"
+                           placeholder="👨‍⚕️ Doctor name">
+                </div>
+
+                <div class="col-md-4">
+                    <input type="text" id="city" class="form-control"
+                           placeholder="📍 City">
+                </div>
+
+                <div class="col-md-4">
+                    <input type="text" id="specialization" class="form-control"
+                           placeholder="🩺 Specialization">
+                </div>
+
+                <div class="col-12">
+                    <button class="btn btn-primary w-100 py-2"
+                            onclick="searchDoctors()">
+                        🔍 Search Doctors
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <button class="btn btn-primary w-100" onclick="searchDoctors()">
-                Search
-            </button>
-        </div>
-    </div>
-
-    <!-- Doctor List -->
+    <!-- Doctor Results -->
     <div class="row" id="doctor-list"></div>
 
 </div>
+{% endblock %}
 
+{% block extra_js %}
 <script>
 function searchDoctors() {
 
@@ -81,9 +94,7 @@ function searchDoctors() {
         specialization: specialization
     });
 
-   fetch(`/appointments/api/doctors/search/?${params.toString()}`)
-
-
+    fetch(`/appointments/api/doctors/search/?${params.toString()}`)
         .then(response => response.json())
         .then(data => {
 
@@ -92,39 +103,44 @@ function searchDoctors() {
             if (data.length === 0) {
                 html = `
                     <div class="col-12 text-center text-muted">
-                        No doctors found
+                        <h5>No doctors found 😔</h5>
                     </div>
                 `;
             }
 
             data.forEach(doc => {
                 html += `
-                    <div class="col-md-4">
-                        <div class="card doctor-card mb-4 shadow-sm">
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="card doctor-card h-100 shadow-sm">
 
-                            ${doc.profile_image ? `
-                                <img src="${doc.profile_image}" class="card-img-top">
-                            ` : `
-                                <img src="https://via.placeholder.com/300x220?text=No+Image" class="card-img-top">
-                            `}
+                            <img src="${doc.profile_image || 'https://via.placeholder.com/300x220?text=No+Image'}"
+                                 class="card-img-top">
 
-                            <div class="card-body">
-                                <h5 class="card-title">${doc.name}</h5>
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title fw-bold">${doc.name}</h5>
 
-                                <p class="card-text">
-                                    <strong>Specialization:</strong> ${doc.specialization}<br>
-                                    <strong>Qualification:</strong> ${doc.qualification}<br>
-                                    <strong>Experience:</strong> ${doc.experience_years} years<br>
-                                    <strong>Clinic:</strong> ${doc.clinic_name}<br>
-                                    <strong>City:</strong> ${doc.city}<br>
-                                    <strong>Fee:</strong> ₹${doc.consultation_fee}
+                               <span class="badge rounded-pill badge-special mb-2 px-3 py-2">
+                                    ${doc.specialization}
+                                </span>
+
+                                <p class="card-text small text-muted mb-3">
+                                    ${doc.qualification}<br>
+                                    ${doc.experience_years} years experience<br>
+                                    ${doc.clinic_name}, ${doc.city}
                                 </p>
 
-             <a href="/appointments/book/${doc.id}/"
-   class="btn btn-primary w-100">
-   Book Appointment
-</a>
-     </div>
+                                <div class="mt-auto">
+                                    <p class="fw-semibold mb-2">
+                                        Consultation Fee: ₹${doc.consultation_fee}
+                                    </p>
+
+                                    <a href="/appointments/book/${doc.id}/"
+                                       class="btn btn-outline-primary w-100">
+                                        Book Appointment
+                                    </a>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 `;
@@ -135,17 +151,6 @@ function searchDoctors() {
         .catch(error => {
             console.error("Error:", error);
         });
-  
-}
-
-      /* ================================
-   ADD THIS FUNCTION BELOW
-   ================================ */
-function selectDoctor(doctorId) {
-    // redirect to appointment booking page
-    window.location.href = `/appointments/book/${doctorId}/`;
 }
 </script>
-
-</body>
-</html>
+{% endblock %}

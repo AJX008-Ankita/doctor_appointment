@@ -27,6 +27,8 @@ SECRET_KEY = os.getenv("SECRET_KEY", "unsafe-dev-key")
 
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
+
+
 ALLOWED_HOSTS = [
     "doctor-appointment-gpam.onrender.com",
     ".onrender.com",
@@ -148,7 +150,10 @@ STATICFILES_DIRS = []
 if (BASE_DIR / "static").exists():
     STATICFILES_DIRS.append(BASE_DIR / "static")
 
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+if DEBUG:
+    STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
+else:
+    STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # ==================================================
 # MEDIA FILES

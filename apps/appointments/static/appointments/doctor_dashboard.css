@@ -125,3 +125,131 @@
     .appointment-card { flex-direction:column; align-items:stretch; }
     .card-left { flex-direction:row; }
 }
+
+
+
+
+
+
+
+/* =====================
+   Global
+===================== */
+body {
+    background-color: #f4f6fb;
+    color: #374151;
+    font-size: 15px;
+}
+
+/* =====================
+   Sidebar
+===================== */
+.col-md-2 {
+    background-color: #ffffff;
+}
+
+.border-end {
+    border-color: #e5e7eb !important;
+}
+
+.nav-pills .nav-link {
+    color: #475569 !important;
+    border-radius: 10px;
+    padding: 10px 15px;
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+}
+
+.nav-pills .nav-link:hover {
+    background-color: #eef2ff;
+    color: #2563eb !important;
+}
+
+.nav-pills .nav-link.active {
+    background-color: #2563eb !important;
+    color: #ffffff !important;
+}
+
+/* Sidebar heading */
+h5.text-primary {
+    color: #2563eb !important;
+}
+
+/* =====================
+   Main Content
+===================== */
+.bg-light {
+    background-color: #f4f6fb !important;
+}
+
+/* Page title */
+h2 {
+    color: #1e293b;
+}
+
+/* =====================
+   Cards
+===================== */
+.card {
+    border-radius: 14px;
+    background-color: #ffffff;
+}
+
+.card-body {
+    padding: 1.25rem;
+}
+
+.shadow-sm {
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* =====================
+   Badges
+===================== */
+.badge {
+    font-weight: 500;
+    border-radius: 999px;
+}
+
+/* =====================
+   Table
+===================== */
+.table {
+    font-size: 14px;
+}
+
+.table thead th {
+    color: #64748b;
+    font-weight: 600;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.table tbody tr {
+    transition: background-color 0.15s ease-in-out;
+}
+
+.table tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+.table td {
+    vertical-align: middle;
+    color: #334155;
+}
+
+/* =====================
+   Alerts
+===================== */
+.alert-info {
+    background-color: #eff6ff;
+    color: #1e40af;
+    border: none;
+}
+
+/* =====================
+   Logout Button
+===================== */
+.btn-outline-danger {
+    border-radius: 8px;
+    font-weight: 500;
+}
