@@ -107,7 +107,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 # ==================================================
 # DATABASE (PostgreSQL – Neon compatible)
-# ==================================================
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
