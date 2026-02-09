@@ -49,12 +49,10 @@ class Appointment(models.Model):
         choices=STATUS_CHOICES,
         default='scheduled'
     )
-
-    report_pdf = models.FileField(
-        upload_to="reports/",
-        blank=True,
-        null=True
-    )
+report_pdf = models.URLField(
+    blank=True,
+    null=True
+)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
