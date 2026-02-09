@@ -12,3 +12,5 @@ setuptools>=70.0
 psycopg[binary]>=3.2
 gunicorn>=21.2.0
 whitenoise==6.11.0
+cloudinary
+django-cloudinary-storage

@@ -1,3 +1,4 @@
+from cloudinary.models import CloudinaryField
 
 from django.db import models
 from django.contrib.auth.models import User
@@ -34,8 +35,9 @@ class Doctor(models.Model):
 
     consultation_fee = models.DecimalField(max_digits=8, decimal_places=2)
 
-    profile_image = models.ImageField(
-        upload_to='doctors/',
+    # ✅ Cloudinary image field
+    profile_image = CloudinaryField(
+        "profile_image",
         blank=True,
         null=True
     )
@@ -44,8 +46,6 @@ class Doctor(models.Model):
 
     def __str__(self):
         return self.user.email
-
-
 
 
 #================================

@@ -5,6 +5,10 @@ Django settings for config project.
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+
 
 # ==================================================
 # BASE DIR
@@ -44,12 +48,15 @@ INSTALLED_APPS = [
     # Third-party
     'rest_framework',
     'drf_spectacular',
+    'cloudinary',
+    'cloudinary_storage',
 
     # Local apps
     'apps.accounts',
     'apps.appointments',
     'apps.consultations',
 ]
+
 
 # ==================================================
 # MIDDLEWARE
@@ -169,3 +176,8 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "API documentation for Doctor Appointment System",
     "VERSION": "1.0.0",
 }
+# ==================================================
+# CLOUDINARY MEDIA STORAGE
+# ==================================================
+CLOUDINARY_URL = os.getenv("CLOUDINARY_URL")
+DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
