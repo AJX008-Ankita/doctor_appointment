@@ -3,27 +3,19 @@ from django.urls import path, include
 from django.shortcuts import render
 from django.conf import settings
 from django.conf.urls.static import static
-from apps.appointments.views import patient_dashboard
+from django.contrib.auth.views import LogoutView
+
 from apps.appointments.views import patient_dashboard, doctor_dashboard
 
-from rest_framework import permissions
-from drf_yasg.views import get_schema_view
-from drf_yasg import openapi
-from django.contrib.auth.views import LogoutView
+from drf_spectacular.views import (
+    SpectacularAPIView,
+    SpectacularSwaggerView,
+    SpectacularRedocView,
+)
+
 
 def home(request):
     return render(request, 'home.html')
-
-
-schema_view = get_schema_view(
-    openapi.Info(
-        title="Appointment API",
-        default_version='v1',
-        description="All Appointment APIs",
-    ),
-    public=True,
-    permission_classes=[permissions.AllowAny],
-)
 
 
 urlpatterns = [
@@ -32,19 +24,18 @@ urlpatterns = [
 
     # APPS
     path('', include('apps.accounts.urls')),
- 
-    # ✅ THIS FIXES THE PROBLEM
+    path("appointments/", include("apps.appointments.urls")),
+
+    # DASHBOARDS
     path("patient/dashboard/", patient_dashboard, name="patient_dashboard"),
-      path("appointments/", include("apps.appointments.urls")),
-     path("doctor/dashboard/", doctor_dashboard, name="doctor_dashboard"),
+    path("doctor/dashboard/", doctor_dashboard, name="doctor_dashboard"),
 
+    # API DOCUMENTATION (Python 3.13 compatible)
+    path('schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('swagger/', SpectacularSwaggerView.as_view(url_name='schema')),
+    path('redoc/', SpectacularRedocView.as_view(url_name='schema')),
 
-    # API DOCS
-    path('docs/', schema_view.with_ui('swagger', cache_timeout=0)),
-    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0)),
     path('logout/', LogoutView.as_view(next_page='/'), name='logout'),
-    
-
 ]
 
 

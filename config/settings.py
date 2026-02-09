@@ -30,8 +30,7 @@ ALLOWED_HOSTS = os.getenv(
 
 # ==================================================
 # APPLICATIONS
-# ==================================================
-INSTALLED_APPS = [
+ INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -41,7 +40,7 @@ INSTALLED_APPS = [
 
     # Third-party
     'rest_framework',
-    'drf_yasg',
+    'drf_spectacular',
 
     # Local apps
     'apps.accounts',
