@@ -14,24 +14,17 @@ from drf_spectacular.views import (
 )
 
 
-# =========================
-# HOME VIEW
-# =========================
 def home(request):
     return render(request, "home.html")
 
 
-# =========================
-# URL PATTERNS
-# =========================
 urlpatterns = [
-    # ADMIN
     path("admin/", admin.site.urls),
 
-    # HOME
+    # HOME (ONLY ONE root)
     path("", home, name="home"),
 
-    # APPS (IMPORTANT: prefixed, no conflicts)
+    # APPS (MUST be prefixed)
     path("accounts/", include("apps.accounts.urls")),
     path("appointments/", include("apps.appointments.urls")),
 
@@ -42,25 +35,11 @@ urlpatterns = [
     # AUTH
     path("logout/", LogoutView.as_view(next_page="/"), name="logout"),
 
-    # API DOCUMENTATION
+    # API DOCS
     path("schema/", SpectacularAPIView.as_view(), name="schema"),
-    path(
-        "swagger/",
-        SpectacularSwaggerView.as_view(url_name="schema"),
-        name="swagger-ui",
-    ),
-    path(
-        "redoc/",
-        SpectacularRedocView.as_view(url_name="schema"),
-        name="redoc",
-    ),
+    path("swagger/", SpectacularSwaggerView.as_view(url_name="schema")),
+    path("redoc/", SpectacularRedocView.as_view(url_name="schema")),
 ]
 
-# =========================
-# MEDIA FILES (DEV ONLY)
-# =========================
 if settings.DEBUG:
-    urlpatterns += static(
-        settings.MEDIA_URL,
-        document_root=settings.MEDIA_ROOT
-    )
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
