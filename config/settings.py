@@ -6,9 +6,8 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 import cloudinary
-import cloudinary.uploader
 import cloudinary.api
-
+import cloudinary.uploader
 
 # ==================================================
 # BASE DIR
@@ -27,7 +26,6 @@ SECRET_KEY = os.getenv("SECRET_KEY", "unsafe-dev-key")
 
 DEBUG = os.getenv("DEBUG", "").lower() == "true"
 
-
 ALLOWED_HOSTS = [
     "doctor-appointment-gpam.onrender.com",
     ".onrender.com",
@@ -35,79 +33,72 @@ ALLOWED_HOSTS = [
     "127.0.0.1",
 ]
 
-
 # ==================================================
 # APPLICATIONS
 # ==================================================
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
 
     # Third-party
-    'rest_framework',
-    'drf_spectacular',
-    'cloudinary',
-    'cloudinary_storage',
+    "rest_framework",
+    "drf_spectacular",
+    "cloudinary",
+    "cloudinary_storage",
 
     # Local apps
-    'apps.accounts',
-    'apps.appointments',
-    'apps.consultations',
+    "apps.accounts",
+    "apps.appointments",
+    "apps.consultations",
 ]
-
 
 # ==================================================
 # MIDDLEWARE
 # ==================================================
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
 
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-   #'apps.accounts.middleware.RedirectAuthenticatedUserMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
 # ==================================================
-# URLS
+# URLS / WSGI
 # ==================================================
-ROOT_URLCONF = 'config.urls'
+ROOT_URLCONF = "config.urls"
+WSGI_APPLICATION = "config.wsgi.application"
 
 # ==================================================
 # TEMPLATES
 # ==================================================
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [BASE_DIR / "templates"],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
 ]
 
 # ==================================================
-# WSGI
+# DATABASE (PostgreSQL – Neon)
 # ==================================================
-WSGI_APPLICATION = 'config.wsgi.application'
-
-# ==================================================
-# DATABASE (PostgreSQL – Neon compatible)
-
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
@@ -126,34 +117,37 @@ DATABASES = {
 # PASSWORD VALIDATION
 # ==================================================
 AUTH_PASSWORD_VALIDATORS = [
-    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
+    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
 # ==================================================
 # INTERNATIONALIZATION
 # ==================================================
-LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
+LANGUAGE_CODE = "en-us"
+TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
 
 # ==================================================
-# STATIC FILES
+# STATIC FILES (RENDER + WHITENOISE FIXED)
 # ==================================================
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_DIRS = [BASE_DIR / "static"]
 
-STATICFILES_DIRS = []
-if (BASE_DIR / "static").exists():
-    STATICFILES_DIRS.append(BASE_DIR / "static")
+STATICFILES_FINDERS = [
+    "django.contrib.staticfiles.finders.FileSystemFinder",
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+]
 
 if DEBUG:
     STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
 else:
-    STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+    # safer than Manifest version (avoids 500 errors)
+    STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 
 # ==================================================
 # MEDIA FILES
@@ -181,16 +175,16 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "API documentation for Doctor Appointment System",
     "VERSION": "1.0.0",
 }
+
 # ==================================================
 # CLOUDINARY MEDIA STORAGE
 # ==================================================
-
 CLOUDINARY_URL = os.getenv("CLOUDINARY_URL")
 
 if CLOUDINARY_URL:
     cloudinary.config(
         cloudinary_url=CLOUDINARY_URL,
-        secure=True
+        secure=True,
     )
     DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 else:
