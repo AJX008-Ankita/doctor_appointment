@@ -20,14 +20,14 @@ urlpatterns = [
     # =====================================================
     # PUBLIC DOCTOR SEARCH (API)
     # =====================================================
-  # =============================
-    # DOCTOR SEARCH (HTML)
-    # =============================
-    path(
-        "doctor/search/",
-        views.doctor_search_page,
-        name="doctor_search_page"
-    ),
+#   # =============================
+#     # DOCTOR SEARCH (HTML)
+#     # =============================
+#     path(
+#         "doctor/search/",
+#         views.doctor_search_page,
+#         name="doctor_search_page"
+#     ),
 
     # =============================
     # DOCTOR SEARCH (API)
