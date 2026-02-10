@@ -28,13 +28,13 @@ SECRET_KEY = os.getenv("SECRET_KEY", "unsafe-dev-key")
 DEBUG = os.getenv("DEBUG", "").lower() == "true"
 
 
-
 ALLOWED_HOSTS = [
     "doctor-appointment-gpam.onrender.com",
     ".onrender.com",
     "localhost",
     "127.0.0.1",
 ]
+
 
 # ==================================================
 # APPLICATIONS
@@ -184,5 +184,14 @@ SPECTACULAR_SETTINGS = {
 # ==================================================
 # CLOUDINARY MEDIA STORAGE
 # ==================================================
+
 CLOUDINARY_URL = os.getenv("CLOUDINARY_URL")
-DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+
+if CLOUDINARY_URL:
+    cloudinary.config(
+        cloudinary_url=CLOUDINARY_URL,
+        secure=True
+    )
+    DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+else:
+    DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
