@@ -5,71 +5,141 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/patient_register.css' %}">
+<style>
+    .error {
+        color: red;
+        font-size: 14px;
+        margin-bottom: 5px;
+    }
+    .success {
+        color: green;
+        font-size: 15px;
+        margin-top: 10px;
+        text-align: center;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
 <div class="patient-card">
     <h3 class="text-center mb-3">Patient Registration</h3>
 
-    <form id="patientForm">
+    <form id="patientForm" novalidate>
         {% csrf_token %}
 
-        <input class="form-control mb-2" name="full_name" placeholder="Full Name">
+        <input type="text" class="form-control mb-1" name="full_name" placeholder="Full Name">
         <div class="error" id="full_name_error"></div>
 
-        <input class="form-control mb-2" name="email" placeholder="Email">
+        <input type="email" class="form-control mb-1" name="email" placeholder="Email">
         <div class="error" id="email_error"></div>
 
-        <input class="form-control mb-2" name="phone" placeholder="Phone">
+        <input type="text" class="form-control mb-1" name="phone" placeholder="Phone">
         <div class="error" id="phone_error"></div>
 
-        <input type="password" class="form-control mb-2" name="password" placeholder="Password">
+        <input type="password" class="form-control mb-1" name="password" placeholder="Password">
         <div class="error" id="password_error"></div>
 
-        <select class="form-control mb-2" name="gender">
+        <select class="form-control mb-1" name="gender">
             <option value="">Select Gender</option>
-            <option>Male</option>
-            <option>Female</option>
-            <option>Other</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
         </select>
         <div class="error" id="gender_error"></div>
 
-        <input type="date" class="form-control mb-2" name="date_of_birth">
+        <input type="date" class="form-control mb-1" name="date_of_birth">
         <div class="error" id="date_of_birth_error"></div>
 
-        <input class="form-control mb-2" name="city" placeholder="City">
+        <input type="text" class="form-control mb-1" name="city" placeholder="City">
         <div class="error" id="city_error"></div>
 
-        <button class="btn btn-primary w-100 mt-3">Register</button>
+        <button type="submit" class="btn btn-primary w-100 mt-3">
+            Register
+        </button>
+
         <div class="success" id="successMsg"></div>
     </form>
 </div>
 
 <script>
-document.getElementById("patientForm").addEventListener("submit", async function(e){
+document.getElementById("patientForm").addEventListener("submit", async function (e) {
     e.preventDefault();
 
+    // Clear messages
     document.querySelectorAll(".error").forEach(el => el.innerText = "");
     document.getElementById("successMsg").innerText = "";
 
-    const formData = new FormData(this);
+    const form = this;
+    const formData = new FormData(form);
+    let hasError = false;
+
+    const fullName = formData.get("full_name").trim();
+    const email = formData.get("email").trim();
+    const phone = formData.get("phone").trim();
+    const password = formData.get("password");
+    const gender = formData.get("gender");
+    const dob = formData.get("date_of_birth");
+    const city = formData.get("city").trim();
+
+    // ================= FRONTEND VALIDATION =================
+    if (fullName.length < 3) {
+        document.getElementById("full_name_error").innerText = "Name must be at least 3 characters";
+        hasError = true;
+    }
+
+    if (!email || !email.includes("@")) {
+        document.getElementById("email_error").innerText = "Enter valid email";
+        hasError = true;
+    }
+
+    if (!/^\d{10,}$/.test(phone.replace(/\D/g, ""))) {
+        document.getElementById("phone_error").innerText = "Enter valid phone number";
+        hasError = true;
+    }
+
+    if (password.length < 6) {
+        document.getElementById("password_error").innerText = "Password must be at least 6 characters";
+        hasError = true;
+    }
+
+    if (!gender) {
+        document.getElementById("gender_error").innerText = "Select gender";
+        hasError = true;
+    }
+
+    if (!dob) {
+        document.getElementById("date_of_birth_error").innerText = "Select date of birth";
+        hasError = true;
+    }
+
+    if (!city) {
+        document.getElementById("city_error").innerText = "Enter city";
+        hasError = true;
+    }
+
+    if (hasError) return;
+
+    // ================= API CALL =================
     const csrf = document.querySelector("[name=csrfmiddlewaretoken]").value;
 
-    const res = await fetch("/api/patient/register/", {
+    const res = await fetch("/accounts/api/patient/register/", {
         method: "POST",
-        body: formData,
-        headers: { "X-CSRFToken": csrf }
+        headers: { "X-CSRFToken": csrf },
+        body: formData
     });
 
     const data = await res.json();
 
     if (!res.ok) {
-        for (let key in data.errors) {
-            document.getElementById(key + "_error").innerText = data.errors[key];
+        if (data.errors) {
+            for (let key in data.errors) {
+                const el = document.getElementById(key + "_error");
+                if (el) el.innerText = data.errors[key];
+            }
         }
     } else {
-        document.getElementById("successMsg").innerText = data.success;
-        this.reset();
+        document.getElementById("successMsg").innerText = data.message;
+        form.reset();
     }
 });
 </script>

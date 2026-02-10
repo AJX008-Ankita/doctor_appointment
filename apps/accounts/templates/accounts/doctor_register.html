@@ -173,7 +173,7 @@ document.getElementById("doctorForm").addEventListener("submit", async function(
     const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
     try {
-        const response = await fetch("/api/doctor/register/", {
+        const response = await fetch("/accounts/api/doctor/register/", {
             method: "POST",
             body: formData,
             headers: {
