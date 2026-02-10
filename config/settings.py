@@ -25,7 +25,7 @@ load_dotenv(BASE_DIR / ".env")
 # ==================================================
 SECRET_KEY = os.getenv("SECRET_KEY", "unsafe-dev-key")
 
-DEBUG = os.getenv("DEBUG", "False") == "True"
+DEBUG = os.getenv("DEBUG", "").lower() == "true"
 
 
 
