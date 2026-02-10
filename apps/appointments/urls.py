@@ -111,16 +111,13 @@ urlpatterns = [
         views.save_notes,
         name="save_notes"
     ),
-    path(
-        "appointment/<int:appointment_id>/report/",
-        views.report_preview,
-        name="report_preview"
-    ),
-    path(
-        "appointment/<int:appointment_id>/generate-report/",
-        views.generate_report,
-        name="generate_report"
-    ),
+path(
+    "appointment/<int:appointment_id>/report/",
+    views.generate_report,
+    name="report_preview"
+),
+
+   path("report/<int:appointment_id>/", views.generate_report, name="generate_report"),
 
     # =====================================================
     # DOCTOR AVAILABILITY

@@ -1,3 +1,6 @@
+
+from io import BytesIO
+from reportlab.lib.pagesizes import A4
 import cloudinary
 import cloudinary.uploader
 from django.http import HttpResponse, FileResponse
@@ -394,93 +397,143 @@ def save_notes(request, appointment_id):
 # -------------------
 # REPORT PREVIEW
 # -------------------
-def report_preview(request, appointment_id):
-    appointment = get_object_or_404(Appointment, id=appointment_id)
+# views.py
+#==============================================================
 
-    if not appointment.report_pdf:
-        return HttpResponse("Report not generated yet")
+# ---------- helper functions ----------
 
-    return redirect(
-        appointment.report_pdf.replace(
-            "/upload/",
-            "/upload/fl_inline/"
-        )
-    )
+def draw_kv(c, x, y, label, value):
+    c.setFont("Helvetica-Bold", 11)
+    c.drawString(x, y, f"{label}:")
+    c.setFont("Helvetica", 11)
+    c.drawString(x + 120, y, str(value))
 
-# -------------------
-# GENERATE PDF (ReportLab)
-# -------------------
+
+def draw_section_title(c, x, y, title):
+    c.setFont("Helvetica-Bold", 14)
+    c.drawString(x, y, title)
+
+
+# ---------- main function ----------
+
 def generate_report(request, appointment_id):
     appointment = get_object_or_404(Appointment, id=appointment_id)
 
     try:
-        note = MedicalNote.objects.get(appointment=appointment)
+        note = appointment.medical_note
     except MedicalNote.DoesNotExist:
-        return HttpResponse("Medical note not found")
+        return HttpResponse("Medical note not found", status=404)
 
-    # ✅ Render-safe temp directory
-    reports_dir = "/tmp/reports"
-    os.makedirs(reports_dir, exist_ok=True)
+    buffer = BytesIO()
+    c = canvas.Canvas(buffer, pagesize=A4)
+    width, height = A4
 
-    file_path = os.path.join(
-        reports_dir,
-        f"appointment_{appointment.id}.pdf"
+    y = height - 50
+    line_gap = 18
+
+    # =====================
+    # HEADER
+    # =====================
+    c.setFont("Helvetica-Bold", 18)
+    c.drawCentredString(width / 2, y, "MEDICAL REPORT")
+    y -= 40
+
+    c.setFont("Helvetica", 11)
+    c.drawString(50, y, f"Appointment ID: {appointment.id}")
+    y -= line_gap
+    c.drawString(
+        50,
+        y,
+        f"Date: {appointment.appointment_date.strftime('%d %b %Y')}"
+    )
+    y -= line_gap
+    c.drawString(
+        50,
+        y,
+        f"Time: {appointment.start_time.strftime('%I:%M %p')} "
+        f"to {appointment.end_time.strftime('%I:%M %p')}"
     )
 
-    # =========================
-    # CREATE PDF (ReportLab)
-    # =========================
-    c = canvas.Canvas(file_path)
-    c.setFont("Helvetica", 12)
+    y -= 35
 
-    y = 800
-    c.drawString(50, y, "MEDICAL REPORT")
-    y -= 40
+    # =====================
+    # DOCTOR DETAILS (LEFT COLUMN)
+    # =====================
+    doctor = appointment.doctor
+    left_x = 50
+    right_x = 330
 
-    c.drawString(50, y, f"Patient: {appointment.patient.full_name}")
-    y -= 20
-    c.drawString(50, y, f"Doctor: {appointment.doctor.full_name}")
-    y -= 20
-    c.drawString(50, y, f"Date: {appointment.appointment_date}")
-    y -= 40
+    draw_section_title(c, left_x, y, "Doctor Details")
+    y_doctor = y - 25
 
-    c.drawString(50, y, "Notes:")
-    y -= 20
-    c.drawString(70, y, note.notes or "")
-    y -= 40
+    draw_kv(c, left_x, y_doctor, "Name", f"Dr. {doctor.full_name}"); y_doctor -= line_gap
+    draw_kv(c, left_x, y_doctor, "Specialization", doctor.specialization); y_doctor -= line_gap
+    draw_kv(c, left_x, y_doctor, "Qualification", doctor.qualification); y_doctor -= line_gap
+    draw_kv(c, left_x, y_doctor, "Experience", f"{doctor.experience_years} years"); y_doctor -= line_gap
+    draw_kv(c, left_x, y_doctor, "Clinic", doctor.clinic_name); y_doctor -= line_gap
+    draw_kv(c, left_x, y_doctor, "City", doctor.city); y_doctor -= line_gap
+    draw_kv(c, left_x, y_doctor, "Contact", doctor.phone)
 
-    c.drawString(50, y, "Prescription:")
-    y -= 20
-    c.drawString(70, y, note.prescription or "")
-    y -= 40
+    # =====================
+    # PATIENT DETAILS (RIGHT COLUMN)
+    # =====================
+    patient = appointment.patient
+    draw_section_title(c, right_x, y, "Patient Details")
+    y_patient = y - 25
 
-    c.drawString(50, y, "Follow Up:")
-    y -= 20
-    c.drawString(70, y, note.follow_up or "")
+    draw_kv(c, right_x, y_patient, "Name", patient.full_name); y_patient -= line_gap
+    draw_kv(c, right_x, y_patient, "Gender", patient.gender); y_patient -= line_gap
+    draw_kv(c, right_x, y_patient, "Age", f"{patient.age} years"); y_patient -= line_gap
+    draw_kv(c, right_x, y_patient, "City", patient.city); y_patient -= line_gap
+    draw_kv(c, right_x, y_patient, "Contact", patient.phone)
+
+    # Move y below both columns
+    y = min(y_doctor, y_patient) - 30
+
+    # =====================
+    # MEDICAL NOTES
+    # =====================
+    draw_section_title(c, 50, y, "Medical Notes")
+    y -= 22
+    c.setFont("Helvetica", 11)
+    y = draw_paragraph(c, note.notes, 70, y, max_width=460)
+    y -= 25
+
+    # =====================
+    # PRESCRIPTION
+    # =====================
+    draw_section_title(c, 50, y, "Prescription")
+    y -= 22
+    y = draw_paragraph(c, note.prescription, 70, y, max_width=460)
+    y -= 25
+
+    # =====================
+    # FOLLOW UP
+    # =====================
+    draw_section_title(c, 50, y, "Follow Up")
+    y -= 22
+    y = draw_paragraph(c, note.follow_up, 70, y, max_width=460)
+
+    # =====================
+    # FOOTER
+    # =====================
+    c.setFont("Helvetica-Oblique", 9)
+    c.drawString(50, 40, "Generated by DocApp – Digital Medical Record")
 
     c.showPage()
     c.save()
+    buffer.seek(0)
 
-    # 🔒 Ensure file is fully written
-    with open(file_path, "rb"):
-        pass
+    if request.GET.get("download"):
+        response = FileResponse(buffer, content_type="application/pdf")
+        response["Content-Disposition"] = (
+            f'attachment; filename="medical_report_{appointment.id}.pdf"'
+        )
+        return response
 
-      # =========================
-    # UPLOAD TO CLOUDINARY
-    # =========================
-    upload_result = cloudinary.uploader.upload(
-        file_path,
-        resource_type="raw",   # ✅ correct
-        folder="media/reports",
-        public_id=f"appointment_{appointment.id}",
-        overwrite=True
-    )
+    return FileResponse(buffer, content_type="application/pdf")
 
-    # Save Cloudinary URL
-    appointment.report_pdf = upload_result["secure_url"]
-    appointment.save()
 
-    return redirect("report_preview", appointment_id=appointment.id)
 #==============================================================
 #patient reschdule appointment
 #=============================================================
@@ -509,3 +562,30 @@ def patient_reschedule_appointment(request, appointment_id):
         {"appointment": appointment}
     )
 
+from reportlab.lib.units import inch
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import Paragraph
+from reportlab.lib.enums import TA_LEFT
+from reportlab.lib.styles import ParagraphStyle
+from reportlab.lib.colors import black
+
+def draw_paragraph(canvas, text, x, y, max_width):
+    """
+    Draw wrapped text without black boxes
+    """
+    if not text:
+        return y
+
+    style = ParagraphStyle(
+        name="Normal",
+        fontName="Helvetica",
+        fontSize=12,
+        leading=16,
+        textColor=black,
+        alignment=TA_LEFT,
+    )
+
+    para = Paragraph(text.replace("\n", "<br/>"), style)
+    width, height = para.wrap(max_width, 1000)
+    para.drawOn(canvas, x, y - height)
+    return y - height - 10

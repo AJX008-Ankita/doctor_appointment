@@ -119,12 +119,12 @@
 
                
 
-                <!-- PRINT / PDF -->
-                <a href="{% url 'report_preview' appointment.id %}"
-                   target="_blank"
-                   class="btn btn-outline-secondary w-100">
-                    Print Prescription
-                </a>
+              <!-- Print / PDF (opens inline preview in new tab) -->
+<a href="{% url 'report_preview' appointment.id %}?download=1"
+   class="btn btn-outline-secondary w-100">
+    Download Prescription
+</a>
+
 
             </div>
         </div>
