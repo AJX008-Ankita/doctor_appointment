@@ -82,19 +82,17 @@
                     </td>
 
                     <!-- REPORT -->
-                    <td>
-                        {% if appt.report_pdf %}
-                            <a href="{{ appt.report_pdf.url }}"
-                               class="btn btn-success btn-sm"
-                               target="_blank">
-                                ⬇ Download
-                            </a>
-                        {% else %}
-                            <span class="text-muted">
-                                Not Ready
-                            </span>
-                        {% endif %}
-                    </td>
+                   <td>
+    {% if appt.status == "completed" %}
+        <a href="{% url 'report_preview' appt.id %}?download=1"
+           class="btn btn-success btn-sm"
+           target="_blank">
+            ⬇ Download
+        </a>
+    {% else %}
+        <span class="text-muted">Not Ready</span>
+    {% endif %}
+</td>
 
                     <!-- PATIENT TIME (NEW) -->
                     <td>
