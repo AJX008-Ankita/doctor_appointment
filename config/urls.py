@@ -13,9 +13,11 @@ from drf_spectacular.views import (
     SpectacularRedocView,
 )
 
+from django.http import HttpResponse
 
 def home(request):
-    return render(request, "home.html")
+    return HttpResponse("OK - Render is working")
+
 
 
 urlpatterns = [
