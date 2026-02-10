@@ -6,8 +6,6 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 import cloudinary
-import cloudinary.api
-import cloudinary.uploader
 
 # ==================================================
 # BASE DIR
@@ -47,8 +45,10 @@ INSTALLED_APPS = [
     # Third-party
     "rest_framework",
     "drf_spectacular",
-    "cloudinary",
+
+    # ✅ ORDER MATTERS (FIX)
     "cloudinary_storage",
+    "cloudinary",
 
     # Local apps
     "apps.accounts",
@@ -97,7 +97,7 @@ TEMPLATES = [
 ]
 
 # ==================================================
-# DATABASE (PostgreSQL – Neon)
+# DATABASE
 # ==================================================
 DATABASES = {
     "default": {
@@ -107,9 +107,7 @@ DATABASES = {
         "PASSWORD": os.getenv("DB_PASSWORD"),
         "HOST": os.getenv("DB_HOST"),
         "PORT": os.getenv("DB_PORT", "5432"),
-        "OPTIONS": {
-            "sslmode": "require",
-        },
+        "OPTIONS": {"sslmode": "require"},
     }
 }
 
@@ -132,25 +130,19 @@ USE_I18N = True
 USE_TZ = True
 
 # ==================================================
-# STATIC FILES (RENDER + WHITENOISE FIXED)
+# STATIC FILES (WHITENOISE)
 # ==================================================
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 
-STATICFILES_FINDERS = [
-    "django.contrib.staticfiles.finders.FileSystemFinder",
-    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
-]
-
 if DEBUG:
     STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
 else:
-    # safer than Manifest version (avoids 500 errors)
     STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 
 # ==================================================
-# MEDIA FILES
+# MEDIA (LOCAL FALLBACK ONLY)
 # ==================================================
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
@@ -161,7 +153,7 @@ MEDIA_ROOT = BASE_DIR / "media"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # ==================================================
-# REST FRAMEWORK + SWAGGER
+# REST FRAMEWORK
 # ==================================================
 REST_FRAMEWORK = {
     "DEFAULT_RENDERER_CLASSES": (
@@ -170,14 +162,8 @@ REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
-SPECTACULAR_SETTINGS = {
-    "TITLE": "Doctor Appointment API",
-    "DESCRIPTION": "API documentation for Doctor Appointment System",
-    "VERSION": "1.0.0",
-}
-
 # ==================================================
-# CLOUDINARY MEDIA STORAGE
+# CLOUDINARY (FIXED)
 # ==================================================
 CLOUDINARY_URL = os.getenv("CLOUDINARY_URL")
 
@@ -186,6 +172,11 @@ if CLOUDINARY_URL:
         cloudinary_url=CLOUDINARY_URL,
         secure=True,
     )
-    DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+
+    DEFAULT_FILE_STORAGE = (
+        "cloudinary_storage.storage.MediaCloudinaryStorage"
+    )
 else:
-    DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
+    DEFAULT_FILE_STORAGE = (
+        "django.core.files.storage.FileSystemStorage"
+    )
