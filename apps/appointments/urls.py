@@ -141,7 +141,7 @@ path(
     # =====================================================
     # APPOINTMENT API (LOGIN REQUIRED)
     # =====================================================
-    path(
+     path(
         "api/appointments/create/",
         views.create_appointment_api,
         name="create_appointment_api"

@@ -22,7 +22,6 @@
                     <th>Status</th>
                     <th>Actions</th>
                     <th>Report</th>
-                    <th>Patient Time</th>
                 </tr>
             </thead>
             <tbody>
@@ -31,7 +30,6 @@
                     <td>{{ appt.doctor.full_name }}</td>
                     <td>{{ appt.doctor.specialization }}</td>
                     <td>{{ appt.appointment_date }}</td>
-                    <td>{{ appt.start_time }} – {{ appt.end_time }}</td>
 
                     <!-- STATUS -->
                     <td>
@@ -92,7 +90,7 @@
     {% else %}
         <span class="text-muted">Not Ready</span>
     {% endif %}
-</td>
+</td>  
 
                     <!-- PATIENT TIME (NEW) -->
                     <td>

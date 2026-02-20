@@ -286,3 +286,11 @@ a, button {
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
 }
+/* Custom Table Header */
+.custom-header th {
+    background-color: #198754;   /* Green (matches your button) */
+    color: white;
+    padding: 14px;
+    font-weight: 600;
+    border-color: #146c43;
+}

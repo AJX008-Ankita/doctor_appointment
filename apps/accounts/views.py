@@ -221,3 +221,44 @@ def patient_register_api(request):
 def logout_view(request):
     logout(request)
     return redirect("/")
+# =====================================================
+# PATIENT LOGIN (HTML + AJAX)
+# =====================================================
+import json
+from django.contrib.auth import authenticate, login
+from django.http import JsonResponse
+from django.shortcuts import render
+
+def patient_login(request):
+
+    # 🔹 Get ?next= from URL (GET request)
+    next_from_get = request.GET.get("next")
+
+    if request.method == "POST":
+        data = json.loads(request.body)
+
+        email = data.get("email")
+        password = data.get("password")
+
+        # 🔹 Get next from POST body
+        next_from_post = data.get("next")
+
+        user = authenticate(request, username=email, password=password)
+
+        if user is not None:
+            login(request, user)
+
+            # 🔥 Priority: POST next > GET next > dashboard
+            redirect_url = next_from_post or next_from_get or "/patient/dashboard/"
+
+            return JsonResponse({
+                "success": True,
+                "redirect_url": redirect_url
+            })
+
+        return JsonResponse({
+            "success": False,
+            "error": "Invalid email or password"
+        })
+
+    return render(request, "accounts/patient_login.html")

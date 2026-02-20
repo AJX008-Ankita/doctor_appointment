@@ -21,6 +21,7 @@ urlpatterns = [
     # apps/accounts/urls.py
 # apps/accounts/urls.py
 path("logout/", views.logout_view, name="logout"),
+ path("patient/login/", views.patient_login, name="patient_login")
  
 
 ]

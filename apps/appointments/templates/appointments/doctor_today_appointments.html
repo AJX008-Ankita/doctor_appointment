@@ -18,12 +18,12 @@
     {% if appointments %}
     <div class="table-responsive">
         <table class="table table-bordered table-hover align-middle">
-            <thead class="table-dark text-center">
+        <thead class="table-primary text-center">
                 <tr>
                     <th>Patient Details</th>
                     <th>Date</th>
                     <th>Doctor Time</th>
-                    <th>Patient Time</th>   <!-- ✅ ADDED -->
+                     <!-- ✅ ADDED -->
                     <th>Status</th>
                     <th style="width: 280px;">Actions</th>
                 </tr>
@@ -73,15 +73,6 @@
                     <!-- DOCTOR TIME -->
                     <td class="text-center">
                         {{ appt.start_time }} – {{ appt.end_time }}
-                    </td>
-
-                    <!-- ✅ PATIENT TIME (ADDED) -->
-                    <td class="text-center">
-                        {% if appt.patient_start_time and appt.patient_end_time %}
-                            {{ appt.patient_start_time }} – {{ appt.patient_end_time }}
-                        {% else %}
-                            <span class="text-muted">Not Provided</span>
-                        {% endif %}
                     </td>
 
                     <!-- STATUS -->

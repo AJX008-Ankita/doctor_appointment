@@ -87,25 +87,44 @@ def api_search_doctors(request):
 # =====================================================
 # API: CREATE APPOINTMENT (SWAGGER)
 # =====================================================
+from django.views.decorators.http import require_POST
+from django.urls import reverse
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from datetime import datetime
+import json
 @require_POST
 def create_appointment_api(request):
 
-    # 🔐 If not logged in → return message + login link
+    # 🔐 Not logged in
     if not request.user.is_authenticated:
+        login_url = reverse("patient_login")
+        next_url = request.headers.get("Referer", "/")
+
         return JsonResponse(
             {
                 "success": False,
-                "error": "Please login to book an appointment",
-                "login_url": reverse("patient_login")
+                "login_url": f"{login_url}?next={next_url}"
             },
             status=401
         )
 
-    data = json.loads(request.body)
+    # ✅ Parse JSON
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse(
+            {"success": False, "error": "Invalid data format"},
+            status=400
+        )
 
     availability_id = data.get("availability_id")
-    patient_start_time = data.get("patient_start_time")
-    patient_end_time = data.get("patient_end_time")
+
+    if not availability_id:
+        return JsonResponse(
+            {"success": False, "error": "Availability is required"},
+            status=400
+        )
 
     availability = get_object_or_404(
         DoctorAvailability,
@@ -116,27 +135,31 @@ def create_appointment_api(request):
     patient = get_object_or_404(Patient, user=request.user)
     doctor = get_object_or_404(Doctor, user=availability.doctor)
 
+    # ✅ Prevent double booking same slot
     if Appointment.objects.filter(
         patient=patient,
         appointment_date=availability.date,
-        patient_start_time=patient_start_time,
-        patient_end_time=patient_end_time
+        start_time=availability.start_time,
+        end_time=availability.end_time
     ).exists():
         return JsonResponse(
             {"success": False, "error": "You already booked this slot"},
             status=400
         )
 
+    # ✅ Create appointment using availability slot time
     appointment = Appointment.objects.create(
         doctor=doctor,
         patient=patient,
         appointment_date=availability.date,
         start_time=availability.start_time,
         end_time=availability.end_time,
-        patient_start_time=patient_start_time,
-        patient_end_time=patient_end_time,
         status="scheduled"
     )
+
+    # Optional: mark slot unavailable
+    availability.is_available = False
+    availability.save()
 
     return JsonResponse({
         "success": True,

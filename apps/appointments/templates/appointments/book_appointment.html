@@ -46,27 +46,10 @@
             </select>
         </div>
 
-        <!-- PATIENT COMING TIME -->
-        <div class="mb-4">
-            <label class="form-label fw-semibold">When will you come?</label>
-
-            <div class="row">
-                <div class="col-md-6 mb-2">
-                    <label class="form-label small">From</label>
-                    <input type="time" id="come_from" class="form-control" required>
-                </div>
-
-                <div class="col-md-6 mb-2">
-                    <label class="form-label small">To</label>
-                    <input type="time" id="come_to" class="form-control" required>
-                </div>
-            </div>
-        </div>
-
         <!-- MESSAGE AREA -->
         <div id="formMessage" class="mb-3"></div>
 
-        <button type="submit" class="btn btn-primary w-100">
+        <button type="submit" class="btn btn-success w-100">
             Confirm Appointment
         </button>
     </form>
@@ -80,8 +63,6 @@ document.getElementById("appointmentForm").addEventListener("submit", function (
     e.preventDefault();
 
     const availabilitySelect = document.getElementById("availability_id");
-    const fromTime = document.getElementById("come_from").value;
-    const toTime = document.getElementById("come_to").value;
     const messageDiv = document.getElementById("formMessage");
 
     messageDiv.innerHTML = "";
@@ -96,50 +77,29 @@ document.getElementById("appointmentForm").addEventListener("submit", function (
         return;
     }
 
-    if (!fromTime || !toTime) {
-        messageDiv.innerHTML = `
-            <div class="alert alert-danger">
-                Please select your coming time.
-            </div>
-        `;
-        return;
-    }
-
-    if (fromTime >= toTime) {
-        messageDiv.innerHTML = `
-            <div class="alert alert-danger">
-                "From" time must be earlier than "To" time.
-            </div>
-        `;
-        return;
-    }
-
     // ================= API CALL =================
-    fetch("/appointments/api/appointments/create/", {
+    fetch("{% url 'create_appointment_api' %}", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
             "X-CSRFToken": "{{ csrf_token }}"
         },
         body: JSON.stringify({
-            availability_id: availabilitySelect.value,
-            patient_start_time: fromTime,
-            patient_end_time: toTime
+            availability_id: availabilitySelect.value
         })
     })
     .then(async response => {
-        const data = await response.json();
 
-        // 🔐 NOT LOGGED IN
-        if (response.status === 401 && data.login_url) {
-            messageDiv.innerHTML = `
-                <div class="alert alert-danger d-flex justify-content-between align-items-center">
-                    <span>${data.error}</span>
-        
-                </div>
-            `;
-            return;
+        // 🔐 NOT LOGGED IN → Redirect Immediately
+        if (response.status === 401) {
+            const data = await response.json();
+            if (data.login_url) {
+                window.location.href = data.login_url;
+                return;
+            }
         }
+
+        const data = await response.json();
 
         // ✅ SUCCESS
         if (data.success) {
