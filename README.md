@@ -64,6 +64,17 @@ cloudinary
 django-cloudinary-storage  
 
 ---
+## Configure Environment Variables (.env)
+
+Create a .env file in project root and add:
+
+SECRET_KEY=your_secret_key
+DEBUG=True
+DATABASE_URL=your_neon_database_url
+
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
 
 # ⚙️ Installation
 
