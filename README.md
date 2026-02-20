@@ -70,7 +70,7 @@ Create a .env file in project root and add:
 
 SECRET_KEY=your_secret_key
 DEBUG=True
-DATABASE_URL=your_neon_database_url
+DATABASE_URL=your_neon_database_url/local database
 
 CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_api_key
