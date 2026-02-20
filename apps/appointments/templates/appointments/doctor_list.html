@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}All Doctors{% endblock %}
+
+{% block extra_css %}
+<style>
+    .doctor-card {
+        position: relative;
+        border-radius: 18px;
+        overflow: hidden;
+        color: white;
+        height: 480px;
+        transition: transform 0.3s ease;
+    }
+
+    .doctor-card:hover {
+        transform: translateY(-8px);
+    }
+
+    .doctor-bg {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        top: 0;
+        left: 0;
+        z-index: 1;
+    }
+
+    .doctor-overlay {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        padding: 22px;
+        background: linear-gradient(to top, rgba(0,0,0,0.92), rgba(0,0,0,0.3));
+        z-index: 2;
+    }
+
+    .special-badge {
+        background: rgba(255,255,255,0.2);
+        backdrop-filter: blur(6px);
+        padding: 6px 14px;
+        border-radius: 50px;
+        font-size: 13px;
+        display: inline-block;
+        margin-bottom: 10px;
+    }
+
+    .book-btn {
+        background: white;
+        color: #0d6efd;
+        border-radius: 50px;
+        font-weight: 600;
+    }
+
+    .book-btn:hover {
+        background: #0d6efd;
+        color: white;
+    }
+
+    .doctor-overlay a {
+        color: #ffffff;
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+
+    <div class="text-center mb-5">
+        <h2 class="fw-bold">All Doctors</h2>
+        <p class="text-muted">Meet our qualified specialists</p>
+    </div>
+
+    <div class="row">
+        {% for doctor in doctors %}
+        <div class="col-lg-4 col-md-6 mb-4">
+
+            <div class="doctor-card shadow">
+
+                <!-- Background Image -->
+                {% if doctor.profile_image %}
+                    <img src="{{ doctor.profile_image.url }}" class="doctor-bg">
+                {% else %}
+                    <img src="https://via.placeholder.com/400x500?text=Doctor"
+                         class="doctor-bg">
+                {% endif %}
+
+                <!-- Overlay -->
+                <div class="doctor-overlay">
+
+                    <!-- Doctor Name -->
+                    <h4 class="fw-bold mb-1">
+                        Dr.
+                        {% if doctor.full_name %}
+                            {{ doctor.full_name }}
+                        {% elif doctor.name %}
+                            {{ doctor.name }}
+                        {% elif doctor.user %}
+                            {{ doctor.user.get_full_name }}
+                        {% else %}
+                            Doctor
+                        {% endif %}
+                    </h4>
+
+                    <!-- Specialization -->
+                    <span class="special-badge">
+                        {{ doctor.specialization }}
+                    </span>
+
+                    <!-- Details -->
+                    <div class="small mt-2">
+
+                        <div>{{ doctor.qualification }}</div>
+                        <div>{{ doctor.experience_years }} years experience</div>
+                        <div>{{ doctor.clinic_name }}, {{ doctor.city }}</div>
+
+                        <!-- EMAIL ADDED -->
+                        <div class="mt-2">
+                            📧 
+                            {% if doctor.email %}
+                                <a href="mailto:{{ doctor.email }}">
+                                    {{ doctor.email }}
+                                </a>
+                            {% elif doctor.user %}
+                                <a href="mailto:{{ doctor.user.email }}">
+                                    {{ doctor.user.email }}
+                                </a>
+                            {% endif %}
+                        </div>
+
+                        <div class="mt-2 fw-semibold">
+                            Consultation Fee: ₹{{ doctor.consultation_fee }}
+                        </div>
+
+                    </div>
+
+                    <!-- Button -->
+                    <a href="{% url 'book_appointment_page' doctor.id %}"
+                       class="btn book-btn w-100 mt-3">
+                        Book Appointment
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+        {% empty %}
+        <div class="col-12 text-center text-muted">
+            <h5>No doctors available 😔</h5>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}

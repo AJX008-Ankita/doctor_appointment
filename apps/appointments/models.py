@@ -9,6 +9,7 @@ from apps.accounts.models import Doctor, Patient
   # adjust app name if different
 from django.db import models
 from django.utils import timezone
+
 class Appointment(models.Model):
 
     STATUS_CHOICES = (
@@ -32,8 +33,15 @@ class Appointment(models.Model):
         related_name="appointments"
     )
 
-    appointment_date = models.DateField()
+    availability = models.ForeignKey(
+        'DoctorAvailability',
+        on_delete=models.CASCADE,
+        related_name="appointments",
+        null=True,
+        blank=True
+    )
 
+    appointment_date = models.DateField()
     start_time = models.TimeField()
     end_time = models.TimeField()
 
@@ -48,11 +56,7 @@ class Appointment(models.Model):
         default='scheduled'
     )
 
-    # ✅ Cloudinary URL stored here
-    report_pdf = models.URLField(
-        blank=True,
-        null=True
-    )
+    report_pdf = models.URLField(blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -61,7 +65,6 @@ class Appointment(models.Model):
 
     def __str__(self):
         return f"{self.patient.full_name} - {self.doctor.full_name}"
-
 #=================================
 # Medical Record Model
 #=================================
@@ -83,15 +86,33 @@ class MedicalNote(models.Model):
 #==============================================
 #docor available time model
 #==============================================
+from django.db import models
+from django.conf import settings
+from django.utils import timezone
+
+
 class DoctorAvailability(models.Model):
     doctor = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name="availability_slots"
     )
+
     date = models.DateField()
     start_time = models.TimeField()
     end_time = models.TimeField()
-    is_available = models.BooleanField(default=True)
+
+    capacity = models.PositiveIntegerField(
+        default=5
+    )  # Maximum patients per slot
+
+    # ✅ Correct way (no auto_now_add here)
+    created_at = models.DateTimeField(
+        default=timezone.now
+    )
+
+    class Meta:
+        ordering = ['date', 'start_time']
 
     def __str__(self):
-        return f"{self.doctor} - {self.date} {self.start_time}-{self.end_time}"
+        return f"{self.doctor} - {self.date} {self.start_time} to {self.end_time}"

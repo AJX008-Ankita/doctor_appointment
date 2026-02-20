@@ -128,38 +128,44 @@ def create_appointment_api(request):
 
     availability = get_object_or_404(
         DoctorAvailability,
-        id=availability_id,
-        is_available=True
+        id=availability_id
     )
 
     patient = get_object_or_404(Patient, user=request.user)
     doctor = get_object_or_404(Doctor, user=availability.doctor)
 
-    # ✅ Prevent double booking same slot
+    # 🔢 Count current bookings using availability FK
+    current_bookings = Appointment.objects.filter(
+        availability=availability
+    ).count()
+
+    # 🚫 Slot full check
+    if current_bookings >= availability.capacity:
+        return JsonResponse(
+            {"success": False, "error": "Slot is full"},
+            status=400
+        )
+
+    # 🚫 Prevent same patient booking same slot
     if Appointment.objects.filter(
         patient=patient,
-        appointment_date=availability.date,
-        start_time=availability.start_time,
-        end_time=availability.end_time
+        availability=availability
     ).exists():
         return JsonResponse(
             {"success": False, "error": "You already booked this slot"},
             status=400
         )
 
-    # ✅ Create appointment using availability slot time
+    # ✅ Create appointment
     appointment = Appointment.objects.create(
         doctor=doctor,
         patient=patient,
+        availability=availability,
         appointment_date=availability.date,
         start_time=availability.start_time,
         end_time=availability.end_time,
         status="scheduled"
     )
-
-    # Optional: mark slot unavailable
-    availability.is_available = False
-    availability.save()
 
     return JsonResponse({
         "success": True,
@@ -223,7 +229,6 @@ def book_appointment_page(request, doctor_id):
 
     availability_slots = DoctorAvailability.objects.filter(
         doctor=doctor.user,
-        is_available=True,
         date__gte=date.today()
     ).order_by("date", "start_time")
 
@@ -235,7 +240,6 @@ def book_appointment_page(request, doctor_id):
             "availability_slots": availability_slots
         }
     )
-
 
 # def doctor_search_page(request):
 #     return render(request, "appointments/doctor_search.html")
@@ -612,3 +616,12 @@ def draw_paragraph(canvas, text, x, y, max_width):
     width, height = para.wrap(max_width, 1000)
     para.drawOn(canvas, x, y - height)
     return y - height - 10
+
+#=============================================================
+# DOCTOR LIST PAGE (HTML)
+#=============================================================
+def doctor_list_page(request):
+    doctors = Doctor.objects.all().order_by('-id')  # latest first
+    return render(request, 'appointments/doctor_list.html', {
+        'doctors': doctors
+    })

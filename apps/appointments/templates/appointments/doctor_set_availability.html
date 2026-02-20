@@ -26,7 +26,7 @@
                         <div class="row g-3">
 
                             <!-- Date -->
-                            <div class="col-md-4 col-12">
+                            <div class="col-md-3 col-12">
                                 <label class="form-label fw-semibold">
                                     Date
                                 </label>
@@ -35,12 +35,11 @@
                                     name="date"
                                     class="form-control"
                                     required
-                                    min="{{ today|default:'' }}"
                                 >
                             </div>
 
                             <!-- Start Time -->
-                            <div class="col-md-4 col-12">
+                            <div class="col-md-3 col-12">
                                 <label class="form-label fw-semibold">
                                     Start Time
                                 </label>
@@ -54,7 +53,7 @@
                             </div>
 
                             <!-- End Time -->
-                            <div class="col-md-4 col-12">
+                            <div class="col-md-3 col-12">
                                 <label class="form-label fw-semibold">
                                     End Time
                                 </label>
@@ -67,19 +66,19 @@
                                 >
                             </div>
 
-                            <!-- Availability checkbox -->
-                            <div class="col-12">
-                                <div class="form-check mt-2">
-                                    <input
-                                        class="form-check-input"
-                                        type="checkbox"
-                                        name="is_available"
-                                        checked
-                                    >
-                                    <label class="form-check-label">
-                                        Slot is available for booking
-                                    </label>
-                                </div>
+                            <!-- Capacity -->
+                            <div class="col-md-3 col-12">
+                                <label class="form-label fw-semibold">
+                                    Maximum Patients
+                                </label>
+                                <input
+                                    type="number"
+                                    name="capacity"
+                                    class="form-control"
+                                    required
+                                    min="1"
+                                    value="5"
+                                >
                             </div>
 
                         </div>
@@ -95,6 +94,7 @@
                                 View Availability
                             </a>
                         </div>
+
                     </form>
 
                 </div>

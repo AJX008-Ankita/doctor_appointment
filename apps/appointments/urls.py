@@ -146,4 +146,6 @@ path(
         views.create_appointment_api,
         name="create_appointment_api"
     ),
+
+    path("doctors/", views.doctor_list_page, name="doctor_list_page"),
 ]

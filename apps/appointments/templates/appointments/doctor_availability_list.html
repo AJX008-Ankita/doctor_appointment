@@ -7,10 +7,8 @@
 <div class="container-fluid mt-4">
     <div class="row">
 
-        <!-- Sidebar space if needed -->
         <div class="col-md-2 d-none d-md-block"></div>
 
-        <!-- Main Content -->
         <div class="col-md-10 col-12">
 
             <div class="card shadow-sm">
@@ -41,16 +39,23 @@
                                 {% for slot in slots %}
                                 <tr>
                                     <td>{{ slot.date }}</td>
-                               <td>
-    {{ slot.start_time|time:"g:i A" }} – {{ slot.end_time|time:"g:i A" }}
-</td>
+                                    <td>
+                                        {{ slot.start_time|time:"g:i A" }} –
+                                        {{ slot.end_time|time:"g:i A" }}
+                                    </td>
 
                                     <td>
-                                        {% if slot.is_available %}
-                                            <span class="badge bg-success">Open</span>
-                                        {% else %}
-                                            <span class="badge bg-secondary">Closed</span>
-                                        {% endif %}
+                                        {% with booked=slot.appointments.count %}
+                                            {% if booked >= slot.capacity %}
+                                                <span class="badge bg-secondary">
+                                                    Closed
+                                                </span>
+                                            {% else %}
+                                                <span class="badge bg-success">
+                                                    Open ({{ booked }}/{{ slot.capacity }})
+                                                </span>
+                                            {% endif %}
+                                        {% endwith %}
                                     </td>
 
                                     <td>
