@@ -64,17 +64,6 @@ cloudinary
 django-cloudinary-storage  
 
 ---
-## Configure Environment Variables (.env)
-
-Create a .env file in project root and add:
-
-SECRET_KEY=your_secret_key
-DEBUG=True
-DATABASE_URL=your_neon_database_url/local database
-
-CLOUDINARY_CLOUD_NAME=your_cloud_name
-CLOUDINARY_API_KEY=your_api_key
-CLOUDINARY_API_SECRET=your_api_secret
 
 # ⚙️ Installation
 
@@ -93,10 +82,16 @@ venv\Scripts\activate
 4️⃣ Install Dependencies
 pip install -r requirements.txt
 
-5️⃣ Run Migrations
+5️⃣ Configure Environment Variables (.env)
+SECRET_KEY=your_secret_key
+DEBUG=True
+DATABASE_URL=your_neon_database_url
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+
+6️⃣ Run Migrations
 python manage.py migrate
 
-6️⃣ Run Server
+7️⃣ Run Server
 python manage.py runserver
-
-
